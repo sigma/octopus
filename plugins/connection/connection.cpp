@@ -1,4 +1,4 @@
-/*  Time-stamp: <18/03/2005 21:43:40 Yann Hodique>  */
+/*  Time-stamp: <20/03/2005 14:21:53 Yann Hodique>  */
 
 /**
  *  @file connection.cpp
@@ -103,15 +103,18 @@ void Connection::serverBroadcastOthers(const QStringList &except, const QString 
 void Connection::launch(int port) {
     ServerSocket *ssock = new ServerSocket(this);
     connect(ssock, SIGNAL(newConnection()), SLOT(treatIncoming()));
-    ssock->listen(port);
-    servers << ssock;
+
+    if(ssock->listen(port))
+        servers << ssock;
+    else
+        octInfo(QString("Error when listening : %1\n").arg(ssock->errorString()));
 }
 
 QString Connection::serverSays(const QString& msg) const {
     return "<Mtp> " + msg;
 }
 
-const Connection::Path Connection::find(const QString& user) const {
+Connection::Path& Connection::find(const QString& user) {
     return users[user];
 }
 
@@ -124,11 +127,11 @@ bool Connection::Path::send(const QString& msg) const {
 }
 
 void Connection::treatIncoming() {
+    octInfo("treatIncoming()\n");
     ServerSocket* ssock = static_cast<ServerSocket*>(sender());
-    if(ssock) {
-        while(ssock->hasPendingConnections())
-            welcomeIncoming((ClientSocket *)ssock->nextPendingConnection());
-    }
+    octAssert(ssock != 0);
+    while(ssock->hasPendingConnections())
+        welcomeIncoming((ClientSocket *)ssock->nextPendingConnection());
 }
 
 void Connection::welcomeIncoming(ClientSocket* sock) {
@@ -138,6 +141,7 @@ void Connection::welcomeIncoming(ClientSocket* sock) {
 
 void Connection::authIncoming() {
     ClientSocket* sock = static_cast<ClientSocket*>(sender());
+    octAssert(sock != 0);
 
     disconnect(sock, SIGNAL(readyRead()), this, SLOT(authIncoming()));
     QString login = sock->readLineData();
@@ -154,6 +158,7 @@ void Connection::authIncoming() {
 
 void Connection::checkIncoming() {
     ClientSocket* sock = static_cast<ClientSocket*>(sender());
+    octAssert(sock != 0);
 
     disconnect(sock, SIGNAL(readyRead()), this, SLOT(checkIncoming()));
     if(manager()->databasePlugin()->authUser(sock->getLogin(),sock->readLineData()))
@@ -166,12 +171,15 @@ void Connection::accept(ClientSocket* sock) {
     Path& p = users[sock->getLogin()];
     p << sock;
     connect(sock, SIGNAL(readyRead()), SLOT(processText()));
+    connect(sock, SIGNAL(closing()), SLOT(disconnectSocket()));
 
     manager()->in(sock->getLogin());
 }
 
 void Connection::processText() {
     ClientSocket* sock = static_cast<ClientSocket*>(sender());
+    octAssert(sock != 0);
+
     while(sock->canReadLine())
         processText(sock->getLogin(), sock->readLineData());
 }
@@ -189,4 +197,13 @@ void Connection::processText(const QString& author, const QString& txt) {
             }
         }
     }
+}
+
+void Connection::disconnectSocket() {
+    ClientSocket* sock = static_cast<ClientSocket*>(sender());
+    octAssert(sock != 0);
+
+    QString login = sock->getLogin();
+    find(login).removeAll(sock);
+    manager()->out(login);
 }

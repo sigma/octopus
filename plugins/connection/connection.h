@@ -1,4 +1,4 @@
-/*  Time-stamp: <18/03/2005 21:19:05 Yann Hodique>  */
+/*  Time-stamp: <19/03/2005 13:00:09 Yann Hodique>  */
 
 /**
  *  @file connection.h
@@ -73,7 +73,7 @@ private:
     UserMap users;
 
     QString serverSays(const QString& msg) const;
-    const Path find(const QString& user) const;
+    Path& find(const QString& user);
 
     void accept(ClientSocket*);
     void welcomeIncoming(ClientSocket*);
@@ -84,6 +84,7 @@ private slots:
     void authIncoming();
     void checkIncoming();
     void processText();
+    void disconnectSocket();
 };
 
 #endif /* _CONNECTION_H_ */

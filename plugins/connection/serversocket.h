@@ -1,4 +1,4 @@
-/*  Time-stamp: <18/03/2005 19:59:03 Yann Hodique>  */
+/*  Time-stamp: <19/03/2005 12:53:31 Yann Hodique>  */
 
 /**
  *  @file serversocket.h
@@ -44,6 +44,9 @@ private:
     QList<ClientSocket*> active;
 
     QMap<QString, ClientSocket*> users;
+
+private slots:
+    void cleanSocket();
 };	// end of class ServerSocket
 
 

@@ -1,4 +1,4 @@
-/*  Time-stamp: <18/03/2005 19:53:04 Yann Hodique>  */
+/*  Time-stamp: <20/03/2005 14:33:59 Yann Hodique>  */
 
 /**
  *  @file serversocket.cpp
@@ -18,9 +18,23 @@
 #include "serversocket.h"
 #include "clientsocket.h"
 
-ServerSocket::ServerSocket(QObject *parent) : QTcpServer(parent) {}
+#include "debug.h"
 
-ServerSocket::~ServerSocket() {}
+ServerSocket::ServerSocket(QObject *parent) : QTcpServer(parent) {
+
+}
+
+ServerSocket::~ServerSocket() {
+    octInfo("~ServerSocket()\n");
+    close();
+    for(QQueue<ClientSocket*>::Iterator it = pending.begin(); it != pending.end(); ++it) {
+        (*it)->deleteLater();
+    }
+    for(QList<ClientSocket*>::Iterator it = active.begin(); it != active.end(); ++it) {
+        (*it)->deleteLater();
+    }
+
+}
 
 bool ServerSocket::hasPendingConnections() const {
     return !pending.isEmpty();
@@ -33,9 +47,18 @@ QTcpSocket* ServerSocket::nextPendingConnection() {
 }
 
 void ServerSocket::incomingConnection (int socketDescriptor) {
+    octInfo("incomingConnection()\n");
     ClientSocket * sock = new ClientSocket(this);
+    connect(sock, SIGNAL(closed()), SLOT(cleanSocket()));
     sock->setSocketDescriptor(socketDescriptor);
 
     pending.enqueue(sock);
-    emit newConnection();
+}
+
+void ServerSocket::cleanSocket() {
+    ClientSocket * sock = static_cast<ClientSocket*>(sender());
+
+    pending.removeAll(sock);
+    active.removeAll(sock);
+    sock->deleteLater();
 }
