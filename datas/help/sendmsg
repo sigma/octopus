@@ -1,11 +1,14 @@
 \name
 sendmsg - send a private persistent message
 \synopsis
-sendmsg <user> <message>
+sendmsg (<user>|<list>) <message>
 \description
 Allows you to send a private persistent message to anyone.
 If the recipient is connected, he'll have the message immediatly or at his next connection to the server.
+If given a list (beginning with @), every subscriber will receive the message.
 \example
 > sendmsg franck Hey you, dont help them to bury the light
+\example
+> sendmsg @all Is there anybody out there ?
 \see also
-showmsg, clearmsg
+showmsg, clearmsg, subscribe, unsubscribe
