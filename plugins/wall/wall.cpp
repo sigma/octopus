@@ -72,12 +72,13 @@ void Wall::addToWall(const QString& msg) {
 
 
 void Wall::exportCommands() {
-    registerCommand("wall",&Wall::wallCmd,"[{<sentence>}]","Display the wall");
+    registerCommand("wall",&Wall::wallCmd,"[{<sentence>}]","Display the wall","Wall");
+    registerCommand("wall",&Wall::wallCmd,QString::null,"Display the wall");
     registerCommand("modwall", &Wall::modwallCmd,"{<int>}[ {<sentence>}]","Modify a writing on the wall","System");
 }
 
 void Wall::wallCmd(const QString &from, const QStringList& list) {
-    if(list[0] != "") {
+    if(list.size() != 0 && list[0] != "") {
         QString message(QDate::currentDate().toString("dd/MM/yyyy ") + QTime::currentTime().toString("hh:mm:ss ") + from);
         for(int i=from.length(); i<=manager()->databasePlugin()->validLoginLength(); i++)
             message += " ";

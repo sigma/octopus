@@ -50,15 +50,18 @@ class PluginManager : public PluginManagerInterface {
     Data;
 
     typedef struct {
-        Plugin* plugin;
-        int id;
-        QString description;
         QString pattern;
         QRegExp regexp;
         QList<int> regexp_positions;
         QString group;
-    }
-    ComRef;
+    } ComScheme;
+
+    typedef struct {
+        Plugin* plugin;
+        int id;
+        QString description;
+        QList<ComScheme> groups_behavior;
+    } ComRef;
 
     typedef QMap<QString,ComRef> CommandMap;
 
@@ -125,7 +128,7 @@ private:
     void loadPrePostPluginFile(QString file_name);
     void loadLogPluginFile(QString file_name);
 
-    void buildRegexp(ComRef*);
+    void buildRegexp(ComScheme*);
 
 public:
     void addConnectionPort(int port) {

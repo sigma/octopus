@@ -181,18 +181,31 @@ void PluginManager::registerCommand(Plugin* plugin, const QString & prefix,
                              const QString & description,
                              const QString& group) {
     ComRef cr;
-    cr.plugin = plugin;
-    cr.id = id;
-    cr.description = description;
-    cr.group = group;
-//    databasePlugin()->inGroup("Root",group);
-    cr.pattern = pattern;
-    buildRegexp(&cr);
-    cr.pattern.replace(QChar('{'),QString::null).replace(QChar('}'),QString::null);
+    bool already_present = false;
+
+    if(available_commands.contains(prefix)) {
+        cr = available_commands.value(prefix);
+        already_present = true;
+    }
+    else {
+        cr.plugin = plugin;
+        cr.id = id;
+        cr.description = description;
+    }
+
+    ComScheme sch;
+    sch.pattern = pattern;
+    buildRegexp(&sch);
+    sch.pattern.replace(QChar('{'),QString::null).replace(QChar('}'),QString::null);
+    sch.group = group;
+
+    cr.groups_behavior << sch;
 
     available_commands.insert(prefix,cr);
 
-    cerr << QString("Registered command \"%1\"").arg(prefix).ascii() << endl;
+    if(!already_present) {
+        cerr << QString("Registered command \"%1\"").arg(prefix).ascii() << endl;
+    }
 }
 
 bool PluginManager::isLoadedPlugin(const QString &name) const {
@@ -213,20 +226,27 @@ void PluginManager::dispatch(const QString & from, const QString & msg) {
     }
     ComRef &cr = it.value();
     if (length) {
-        if(cr.group.isNull() || databasePlugin()->inGroup(from,cr.group)) {
-//            std::cerr << "Matching \"" << msg << "\" (command " << it.key() << ") against \"" << cr.regexp.pattern() << "\"" << std::endl;
-            if(cr.regexp.exactMatch(msg.right(msg.length() - length))) {
-                QStringList args;
-                for(QList<int>::Iterator iter = cr.regexp_positions.begin(); iter != cr.regexp_positions.end(); ++iter)
-                    args << cr.regexp.cap(*iter);
-//                std::cerr << "Calling " << it.key() << " with args : \"" << args.join("\" \"") << "\"" << std::endl;
-                (cr.plugin)->callCommand(cr.id,from,args);
-            }
-            else {
-                connectionPlugin()->serverSend(from, "Usage: " + it.key() + " " + cr.pattern);
+        bool ok = false;
+        for(QList<ComScheme>::ConstIterator iter = cr.groups_behavior.begin(); iter !=  cr.groups_behavior.end(); ++iter) {
+            const ComScheme &sch = *iter;
+            if(sch.group.isNull() || databasePlugin()->inGroup(from,sch.group)) {
+                if(sch.regexp.exactMatch(msg.right(msg.length() - length))) {
+                    QStringList args;
+                    QList<int>::ConstIterator iterator = sch.regexp_positions.begin();
+                    for(;iterator != sch.regexp_positions.end(); ++iterator) {
+                        QRegExp re = sch.regexp;
+                        args << re.cap(*iterator);
+                    }
+                    (cr.plugin)->callCommand(cr.id,from,args);
+                }
+                else {
+                    connectionPlugin()->serverSend(from, "Usage: " + it.key() + " " + sch.pattern);
+                }
+                ok = true;
+                break;
             }
         }
-        else {
+        if(!ok) {
             connectionPlugin()->serverSend(from, it.key() + ": permission denied.");
         }
     }
@@ -397,17 +417,17 @@ bool PluginManager::boot() {
     }
 }
 
-void PluginManager::buildRegexp(ComRef* cr) {
-//    cerr << "Building regexp from pattern : \"" + cr->pattern + "\"" << std::endl;
-    QString re(cr->pattern);
+void PluginManager::buildRegexp(ComScheme* sch) {
+//    cerr << "Building regexp from pattern : \"" + sch->pattern + "\"" << std::endl;
+    QString re(sch->pattern);
 
     re.replace(QChar('['),"(")
         .replace(QChar(']'),")?")
         .replace(QChar(' ')," +")
         .replace(QChar('.'),"\\.")
         .replace("<int>","\\d+")
-        .replace("<word>","\\w+")
-        .replace("<wordlist>","\\w+(,\\w+)*")
+        .replace("<word>","[^ ,]+")
+        .replace("<wordlist>","[^ ,]+(,[^ ,]+)*")
         .replace("<value>","[^ ]+")
         .replace("<sentence>","[^ ].*")
         .replace("<access>","(public|private)")
@@ -426,12 +446,12 @@ void PluginManager::buildRegexp(ComRef* cr) {
             pos++;
             if(re[index] == '{') {
                 re[index] = '(';
-                cr->regexp_positions << pos;
+                sch->regexp_positions << pos;
             }
             index++;
         }
     }
-    cr->regexp = QRegExp(" *" + re + " *");
+    sch->regexp = QRegExp(" *" + re + " *");
 //    cerr << "    Regexp = \"" << " *" + re + " *" << "\"" << std::endl;
 //    cerr << "    Positions =";
 //    for(QValueList<int>::iterator it = cr->regexp_positions.begin(); it != cr->regexp_positions.end(); ++it)
