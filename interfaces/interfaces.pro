@@ -11,9 +11,12 @@ HEADERS += ConnectionPlugin.h \
            PrePostPlugin.h \
            LogPlugin.h \
            plugins.h \
-           ExtendedPlugin.h
+           ExtendedPlugin.h \
+           debug.h \
+	   octlog.h
+SOURCES += octlog.cpp
 TEMPLATE = lib
-CONFIG += release \
+CONFIG += debug \
           warn_on \
           qt \
           thread \
@@ -29,3 +32,7 @@ QMAKE_CXXFLAGS_RELEASE += -Wall \
                           -ansi
 OBJECTS_DIR = .obj
 MOC_DIR = .moc
+
+debug {
+DEFINES += OCT_DEBUG
+}
