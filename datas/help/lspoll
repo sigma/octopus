@@ -1,0 +1,11 @@
+\name
+lspoll - list current polls
+\synopsis
+lspoll
+\description
+Allows you to displays the current polls list.
+\example
+> lspoll
+Polls:
+1: We don't need no education? [sure/no/dunno] (3 votes)
+End of polls

@@ -1,0 +1,8 @@
+\name
+pollwall_display_count
+\description
+This user private variable contains the maximum count of displayed poll wall lines when "pollwall" is invoked.
+If you set its value to 0, the displayed poll wall lines count will be the default value.
+It doesn't influence the true poll wall lines count.
+\see also
+msg_display_count, wall_display_count

@@ -1,0 +1,5 @@
+cachegrind.*
+*.kdevelop
+*.kdevses
+Makefile
+doc

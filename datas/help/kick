@@ -1,0 +1,9 @@
+\name
+kick - kick a user
+\synopsis
+kick <login> [<reason>]
+\description
+Allows you to kick a user.
+If reason is passed, it will be sent to the kicked user before its deconnection.
+\example
+> kick roger Pink floyd is not any more your group

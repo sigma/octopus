@@ -1,0 +1,10 @@
+\name
+force - force a user to say something
+\synopsis
+force <login> [<sentence>]
+\description
+Allows you to force a user to send a sentence to the server.
+\example
+> force Sid the lunatic is on the grass
+<Sid> the lunatic is on the grass
+
