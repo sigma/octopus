@@ -29,6 +29,7 @@
 #define _SERVER_H_
 
 #include <qstringlist.h>
+#include <QDateTime>
 
 #include "plugins.h"
 
@@ -47,7 +48,7 @@ class Connect : public ConnectionPlugin {
     PLUGIN_OBJECT(Connect)
 public:
 
-    typedef QValueList<ClientSocket*> HostList;
+    typedef QList<ClientSocket*> HostList;
     typedef QMap<QString,HostList> NameMap;
     typedef QMap<ClientSocket*,QString> SocketMap;
     typedef QMap<QString,QStringList> HostMap;

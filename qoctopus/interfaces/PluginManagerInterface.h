@@ -59,7 +59,7 @@ class PluginManagerInterface : public Plugin {
      *
      */
     PluginManagerInterface(PluginManagerInterface* parent = 0, const QString& d = QString::null)
-        : Plugin(parent), dir(d.isNull()?QDir::currentDirPath():d) {}
+        : Plugin(parent), dir(d.isNull()?QDir::currentPath():d) {}
 
     /**
      * Destructor.

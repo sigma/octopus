@@ -34,7 +34,7 @@ public:
     QString question;
     QStringList choices;
     QStringList polledUsers;
-    QValueList<uint> results;
+    QList<uint> results;
 };
 
 
@@ -56,7 +56,7 @@ public:
 
     void incomingUser(const QString& login);
 
-    typedef QValueList<Poll> PollList;
+    typedef QList<Poll> PollList;
 
 private:
     PollList polls;

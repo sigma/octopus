@@ -30,7 +30,7 @@ void Tell::exportCommands() {
 }
 
 void Tell::tellCmd(const QString& from, const QStringList& list) {
-    QStringList tmp = QStringList::split(",",list[0]);
+    QStringList tmp = list[0].split(",",QString::SkipEmptyParts);
     QStringList dest, ok, ko;
     for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it)
         dest << manager()->databasePlugin()->canonicalName(*it);

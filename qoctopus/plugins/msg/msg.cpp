@@ -12,6 +12,8 @@
 //
 
 #include "msg.h"
+#include <QTextStream>
+#include <QDateTime>
 
 PLUGIN_FACTORY(Msg);
 
@@ -23,12 +25,12 @@ Msg::~Msg() {}
 
 void Msg::showmsgCmd(const QString& from, const QStringList& list) {
     QFile fin(manager()->dataDir() + "/msg/" + from);
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         manager()->connectionPlugin()->serverSend(from, "You have no message");
         return;
     } else {
-        uint count = 0;
-	    uint msg_display_count = manager()->databasePlugin()->getValue(from, "msg_display_count").toInt();
+        int count = 0;
+	    int msg_display_count = manager()->databasePlugin()->getValue(from, "msg_display_count").toInt();
 	    manager()->connectionPlugin()->serverSend(from,"Your message(s) :");
 
 	    if (list[0] == " all")
@@ -86,11 +88,11 @@ void Msg::clearmsgCmd(const QString& from, const QStringList& list) {
             return;
 	    }
 
-	    uint start = list[0].toInt() - 1;
-	    uint stop = (list[1] == "")?(start+1):(list[1].toInt());
+	    int start = list[0].toInt() - 1;
+	    int stop = (list[1] == "")?(start+1):(list[1].toInt());
 
 	    QFile f(manager()->dataDir() + "/msg/" + from);
-	    if (!f.open(IO_ReadOnly)) {
+	    if (!f.open(QIODevice::ReadOnly)) {
             std::cerr << "Could not read message file" << std::endl;
             return;
 	    }
@@ -108,10 +110,10 @@ void Msg::clearmsgCmd(const QString& from, const QStringList& list) {
 	    if (stop > l.count())
             stop = l.count();
 
-	    l.erase(l.at(start), l.at(stop));
+	    l.erase(l.begin() + start, l.begin() + stop);
 
 	    if (l.count()) {
-            if (!f.open(IO_WriteOnly)) {
+            if (!f.open(QIODevice::WriteOnly)) {
                 std::cerr << "Could not write message file." << std::endl;
                 return;
             }
@@ -142,7 +144,7 @@ void Msg::exportCommands() {
 
 void Msg::incomingUser(const QString& login) {
     if(manager()->databasePlugin()->isRegisteredUser(login))
-        showmsgCmd(login,"showmsg");
+        showmsgCmd(login,QStringList("showmsg"));
 }
 
 void Msg::outgoingUser(const QString& login) {
@@ -160,9 +162,9 @@ void Msg::killedUser(const QString& login) {
 void Msg::renamedUser(const QString& old_login, const QString& new_login) {
     QFile fin(manager()->dataDir() + "/msg/" + old_login);
     QFile fout(manager()->dataDir() + "/msg/" + new_login);
-    if(fin.open(IO_ReadOnly)) {
-	if(fout.open(IO_WriteOnly)) {
-	    fout.writeBlock(fin.readAll());
+    if(fin.open(QIODevice::ReadOnly)) {
+	if(fout.open(QIODevice::WriteOnly)) {
+	    fout.write(fin.readAll());
 	    fout.close();
 	}
 	fin.close();
@@ -172,7 +174,7 @@ void Msg::renamedUser(const QString& old_login, const QString& new_login) {
 
 bool Msg::writeMsg(const QString& login, const QString& msg) {
     QFile fout(manager()->dataDir() + "/msg/" + login);
-    if( !fout.open(IO_WriteOnly | IO_Append)) {
+    if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
         std::cerr << "Could not write message file." << std::endl;
         return false;
     }

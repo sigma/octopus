@@ -36,7 +36,7 @@
 #include "clientsocket.h"
 
  ClientSocket::ClientSocket( int sock, QObject *parent, const char *name ) :
-         QSocket( parent, name ) {
+         Q3Socket( parent, name ) {
    connect( this, SIGNAL(readyRead()),
         SLOT(readClient()) );
    connect( this, SIGNAL(connectionClosed()),
@@ -52,7 +52,7 @@
 
  void ClientSocket::readClient() {
    while ( canReadLine() ) {
-       QString str = extractCommands(readLine().remove("\r\n").remove('\n'));
+       QString str = extractCommands(QString(readLine()).remove("\r\n").remove('\n'));
        emit processText(str);
    }
  }

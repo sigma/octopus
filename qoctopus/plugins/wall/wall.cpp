@@ -15,6 +15,8 @@
 
 #include <qregexp.h>
 #include <qfile.h>
+#include <QTextStream>
+#include <QDateTime>
 
 #include "wall.h"
 
@@ -29,7 +31,7 @@ Wall::~Wall() {}
 
 bool Wall::loadWall() {
     QFile fin(manager()->dataDir() + "/wall");
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read wall file" << std::endl;
         return false;
     }
@@ -54,7 +56,7 @@ bool Wall::loadWall() {
 
 void Wall::addToWall(const QString& msg) {
     QFile fout(manager()->dataDir() + "/wall");
-    if( !fout.open(IO_WriteOnly | IO_Append)) {
+    if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
         std::cerr << "Could not write the wall file." << std::endl;
         return;
     }
@@ -100,14 +102,14 @@ void Wall::wallCmd(const QString &from, const QStringList& list) {
 }
 
 void Wall::modwallCmd(const QString &from, const QStringList &list) {
-    uint num = list[0].toInt();
+    int num = list[0].toInt();
     QString replacement = QString::null;
     if (list[1] != "")
         replacement = list[1];
 
     // Read the current wall and store it in a list
     QFile fwall(manager()->dataDir() + "/wall");
-    if (!fwall.open(IO_ReadOnly)) {
+    if (!fwall.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read wall file" << std::endl;
         return;
     }
@@ -135,7 +137,7 @@ void Wall::modwallCmd(const QString &from, const QStringList &list) {
 
     QString message = *it;
     if(replacement.isNull())
-        l.remove(it);
+        l.erase(it);
     else {
         QRegExp regex("(([\\d/]+) ([\\d:]+) ([\\w ]{8}) )(.*)"); //@attention Wall format dependant
         if(regex.exactMatch(message)) { // should always be the case, we just want to get the datas
@@ -144,7 +146,7 @@ void Wall::modwallCmd(const QString &from, const QStringList &list) {
         }
     }
     QFile fout(manager()->dataDir() + "/wall");
-    if (!fout.open(IO_WriteOnly)) {
+    if (!fout.open(QIODevice::WriteOnly)) {
         std::cerr << "Could not write wall file" << std::endl;
         return;
     }
@@ -163,7 +165,7 @@ void Wall::modwallCmd(const QString &from, const QStringList &list) {
 }
 
 QString Wall::getWall(const QString& user) {
-    uint count = manager()->databasePlugin()->getValue(user, "wall_display_count").toInt();
+    int count = manager()->databasePlugin()->getValue(user, "wall_display_count").toInt();
     if (count == 0)
         count = WALL_LINES;
     if (current_wall.count() > count)

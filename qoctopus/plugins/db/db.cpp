@@ -16,6 +16,7 @@
 
 #include <qregexp.h>
 #include <qfile.h>
+#include <QTextStream>
 
 #include "db.h"
 #include "domutil.h"
@@ -108,7 +109,7 @@ Db::~Db() {
 
 bool Db::loadDatas() {
     QFile fin(manager()->dataDir() + "/database");
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read config file" << std::endl;
         return false;
     }
@@ -116,7 +117,7 @@ bool Db::loadDatas() {
     int errorLine, errorCol;
     QString errorMsg;
     if (!m_document.setContent(&fin, &errorMsg, &errorLine, &errorCol)) {
-        std::cerr << QString("This is not a valid config file.\nXML error in line %1, column %2:\n%3").arg(errorLine).arg(errorCol).arg(errorMsg) << std::endl;
+        std::cerr << QString("This is not a valid config file.\nXML error in line %1, column %2:\n%3").arg(errorLine).arg(errorCol).arg(errorMsg).ascii() << std::endl;
         fin.close();
         return false;
     }
@@ -132,7 +133,7 @@ bool Db::loadDatas() {
 
 bool Db::storeDatas() {
     QFile fout(manager()->dataDir() + "/database");
-    if( !fout.open(IO_WriteOnly) ) {
+    if( !fout.open(QIODevice::WriteOnly) ) {
         std::cerr << "Could not write the config file." << std::endl;
         return false;
     }
@@ -184,9 +185,9 @@ int Db::validLoginLength() const {
 
 void Db::registerUser(const QString& login, const QString& pass) {
     QStringList l = DomUtil::readListEntry(m_document,"/userlist/","user");
-    if(l.find(login) == l.end()) {
+    if(l.indexOf(login) == -1) {
         l << login;
-        guests.remove(login);
+        guests.removeAll(login);
     }
     DomUtil::writeListEntry(m_document,"/userlist/","user",l);
     setValue(login,"password",pass);
@@ -195,24 +196,24 @@ void Db::registerUser(const QString& login, const QString& pass) {
 bool Db::isRegisteredUser(const QString& login) const {
     QStringList l = DomUtil::readListEntry(m_document,"/userlist/","user");
     QRegExp re("^" + login + "$");
-    re.setCaseSensitive(false);
-    return l.grep(re).count();
+    re.setCaseSensitivity(Qt::CaseInsensitive);
+    return l.filter(re).count();
 }
 
 void Db::createUser(const QString& login) {
     guests << login;
     for(VarMap::Iterator it = internal_vars.begin(); it != internal_vars.end(); ++it)
-        defineVariable(login,it.key(),it.data().mode,it.data().type,it.data().def);
+        defineVariable(login,it.key(),it.value().mode,it.value().type,it.value().def);
 }
 
 void Db::deleteUser(const QString& login) {
     QStringList l = DomUtil::readListEntry(m_document,"/userlist/","user");
-    QStringList::Iterator it = l.find(login);
-    if(it != l.end()) {
-        l.remove(it);
+    int index = l.indexOf(login);
+    if(index != -1) {
+        l.removeAt(index);
         DomUtil::writeListEntry(m_document,"/userlist/","user",l);
     } else {
-        guests.remove(login);
+        guests.removeAll(login);
     }
     QDomElement father = DomUtil::elementByPath(m_document,"/users");
     QDomElement child = DomUtil::elementByPath(m_document,"/users/" + login);
@@ -226,13 +227,13 @@ bool Db::authUser(const QString& login, const QString& pass) const {
 
 bool Db::existGroup(const QString& group) const {
     QStringList l = DomUtil::readListEntry(m_document,"/grouplist/","group");
-    return (l.find(group) != l.end() || (!group.endsWith("*") && (l.find(group + "*") != l.end())));
+    return (l.indexOf(group) != -1 || (!group.endsWith("*") && (l.indexOf(group + "*") != -1)));
 }
 
 void Db::createGroup(const QString& group) {
     QStringList l1 = DomUtil::readListEntry(m_document,"/grouplist/","group");
     QStringList l2 = DomUtil::readListEntry(m_document,"/users/Root/groups","group");
-    if(l1.find(group) == l1.end()) {
+    if(l1.indexOf(group) == -1) {
         l1 << group;
         l2 << group;
     }
@@ -243,8 +244,8 @@ void Db::createGroup(const QString& group) {
 void Db::deleteGroup(const QString& group) {
     QStringList l1 = DomUtil::readListEntry(m_document,"/grouplist/","group");
     QStringList l2 = DomUtil::readListEntry(m_document,"/users/Root/groups","group");
-    l1.remove(group);
-    l2.remove(group);
+    l1.removeAll(group);
+    l2.removeAll(group);
     DomUtil::writeListEntry(m_document,"/grouplist/","group",l1);
     DomUtil::writeListEntry(m_document,"/users/Root/groups","group",l2);
 }
@@ -253,7 +254,7 @@ void Db::addToGroup(const QString& login, const QString& group) {
     createGroup(group);
 
     QStringList l = DomUtil::readListEntry(m_document,"/users/" + login + "/groups","group");
-    if(l.find(group) == l.end())
+    if(l.indexOf(group) == -1)
         l << group;
     DomUtil::writeListEntry(m_document,"/users/" + login + "/groups","group",l);
 }
@@ -262,7 +263,7 @@ void Db::removeFromGroup(const QString& login, const QString& group) {
     createGroup(group);
 
     QStringList l = DomUtil::readListEntry(m_document,"/users/" + login + "/groups","group");
-    l.remove(group);
+    l.removeAll(group);
     DomUtil::writeListEntry(m_document,"/users/" + login + "/groups","group",l);
 }
 
@@ -270,7 +271,7 @@ bool Db::inGroup(const QString& login, const QString& group) {
     createGroup(group); // so that Root is always member
 
     QStringList l = DomUtil::readListEntry(m_document,"/users/" + login + "/groups","group");
-    return ((l.find(group) != l.end()) || (l.find(group + "*") != l.end())); // lead group implies group
+    return ((l.indexOf(group) != -1) || (l.indexOf(group + "*") != -1)); // lead group implies group
 }
 
 void Db::exportCommands() {
@@ -291,17 +292,17 @@ void Db::exportCommands() {
 }
 
 const QString& Db::canonicalName(const QString& login) const {
-    QString lower(login.lower());
+    QString lower(login.toLower());
     // Research in guest
     for (QStringList::ConstIterator it = guests.begin(); it != guests.end(); ++it) {
-        if ((*it).lower() == lower)
+        if ((*it).toLower() == lower)
             return *it;
     }
 
     // Research in registered
     QStringList users = DomUtil::readListEntry(m_document,"/userlist/","user");
     for (QStringList::Iterator it = users.begin(); it != users.end(); ++it) {
-        if ((*it).lower() == lower)
+        if ((*it).toLower() == lower)
             return *it;
     }
 
@@ -344,7 +345,7 @@ void Db::registerCmd(const QString& from, const QStringList& list) {
 
 void Db::addgroupCmd(const QString& from, const QStringList& list) {
     QString login = canonicalName(list[0]);
-    QStringList groups = QStringList::split(",",list[1]);
+    QStringList groups = list[1].split(",",QString::SkipEmptyParts);
 
     if(!isRegisteredUser(login)) {
         QString txt("User " + login + " is not a registered user");
@@ -384,7 +385,7 @@ void Db::addgroupCmd(const QString& from, const QStringList& list) {
 
 void Db::delgroupCmd(const QString& from, const QStringList& list) {
     QString login = canonicalName(list[0]);
-    QStringList groups = QStringList::split(",",list[1]);
+    QStringList groups = list[1].split(",",QString::SkipEmptyParts);
 
     if(!isRegisteredUser(login)) {
         QString txt("User " + login + " is not a registered user");
@@ -616,7 +617,7 @@ void Db::renameCmd(const QString& from, const QStringList& list) {
         QDomElement child = DomUtil::elementByPath(m_document,"/users/" + login);
         child.setTagName(list[1]);
         QStringList l = DomUtil::readListEntry(m_document,"/userlist/","user");
-        l.remove(login);
+        l.removeAll(login);
         l << list[1];
         DomUtil::writeListEntry(m_document,"/userlist/","user",l);
         manager()->renamed(login,list[1]);
@@ -743,7 +744,7 @@ void Db::undefineVariable(const QString& login, const QString& label) {
     DomUtil::PairList::Iterator it = list.find(label);
 
     if(it != list.end()) {
-        QStringList l = QStringList::split(":",it.data());
+        QStringList l = it.value().split(":",QString::SkipEmptyParts);
         QString path("/users/" + login + pathModifier(l[0].toInt()) + label);
         QDomElement elem = DomUtil::elementByPath(m_document,path);
         elem.parentNode().removeChild(elem);
@@ -793,14 +794,14 @@ QString Db::getValue(const QString& login, const QString& label) const {
 int Db::getVariableMode(const QString& login, const QString& label) const {
     DomUtil::PairList list = DomUtil::readPairListEntry(m_document,"/users/" + login + "/variables", "variable", "name", "infos");
     DomUtil::PairList::Iterator it = list.find(label);
-    QStringList l = QStringList::split(":",it.data());
+    QStringList l = it.value().split(":",QString::SkipEmptyParts);
     return (l[0].toInt());
 }
 
 int Db::getVariableType(const QString& login, const QString& label) const {
     DomUtil::PairList list = DomUtil::readPairListEntry(m_document,"/users/" + login + "/variables", "variable", "name", "infos");
     DomUtil::PairList::Iterator it = list.find(label);
-    QStringList l = QStringList::split(":",it.data());
+    QStringList l = it.value().split(":",QString::SkipEmptyParts);
     return (l[1].toInt());
 }
 
@@ -837,11 +838,11 @@ QString Db::pathModifier(int mode) const {
 
 QString Db::infos(const QString& user, int mode) {
     QStringList txt;
-    for(uint i = 0; i<m_modes.count(); i++)
+    for(int i = 0; i<m_modes.count(); i++)
         if((m_modes[i] & mode) == mode) {
             QDomElement node = DomUtil::elementByPath(m_document,"/users/" + user + pathModifier(m_modes[i]));
             QDomNodeList children = node.childNodes();
-            for(uint i = 0; i < children.count(); i++) {
+            for(int i = 0; i < children.count(); i++) {
                 QDomNode n = children.item(i);
                 txt << n.nodeName() + " : " + n.firstChild().nodeValue();
             }
@@ -855,18 +856,18 @@ QString Db::formatInfos(const QString &infos) {
     QString txt;
     QStringList list;
     QRegExp re("([^\\:]+)\\:(.*)");
-    uint maxLength = 0;
-    list = QStringList::split('\n', infos);
+    int maxLength = 0;
+    list = infos.split('\n',QString::SkipEmptyParts);
     // compute max length
     for (QStringList::Iterator it = list.begin(); it != list.end(); ++it)
         if (re.exactMatch(*it) && (re.cap(1).length() > maxLength))
-            maxLength = re.cap(1).stripWhiteSpace().length();
+            maxLength = re.cap(1).simplified().length();
     // make the text
     for (QStringList::Iterator it = list.begin(); it != list.end(); ++it) {
         if (txt != "")
             txt += "\n";
         if (re.exactMatch(*it))
-            txt += QString("%1 : %2").arg(re.cap(1).stripWhiteSpace(), -maxLength).arg(re.cap(2).stripWhiteSpace());
+            txt += QString("%1 : %2").arg(re.cap(1).simplified(), -maxLength).arg(re.cap(2).simplified());
         else
             txt += *it;
     }
@@ -876,14 +877,14 @@ QString Db::formatInfos(const QString &infos) {
 QStringList Db::getVariableList(const QString &from) {
     QStringList name_list;
     QStringList value_list;
-    uint max = 0;
+    int max = 0;
 
     // Construction
-    for (uint i = 0; i<m_modes.count(); i++) {
+    for (int i = 0; i<m_modes.count(); i++) {
         if ((m_modes[i] & UNENCRYPTED) == UNENCRYPTED) {
             QDomElement node = DomUtil::elementByPath(m_document,"/users/" + from + pathModifier(m_modes[i]));
             QDomNodeList children = node.childNodes();
-            for (uint i = 0; i < children.count(); i++) {
+            for (int i = 0; i < children.count(); i++) {
                 QDomNode n = children.item(i);
                 name_list << n.nodeName();
                 value_list << n.firstChild().nodeValue();
@@ -895,7 +896,7 @@ QStringList Db::getVariableList(const QString &from) {
 
     // Identation
     QString fill;
-    for (uint i = 0; i < name_list.count(); i++) {
+    for (int i = 0; i < name_list.count(); i++) {
         fill.fill(' ', max - name_list[i].length());
         name_list[i] += fill + " = " + value_list[i];
     }

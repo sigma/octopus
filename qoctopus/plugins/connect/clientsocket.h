@@ -28,7 +28,7 @@
 #ifndef _CLIENTSOCKET_H_
 #define _CLIENTSOCKET_H_
 
-#include <qsocket.h>
+#include <Q3Socket>
 #include <qdatetime.h>
 
 /*
@@ -36,7 +36,7 @@
   For every client that connects to the server, the server creates a new
   instance of this class.
 */
-class ClientSocket : public QSocket {
+class ClientSocket : public Q3Socket {
     Q_OBJECT
 public:
     ClientSocket( int sock, QObject *parent=0, const char *name=0 );

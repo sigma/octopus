@@ -19,6 +19,8 @@
 #include <iostream>
 
 #include "default.h"
+#include <QTextStream>
+#include <QDateTime>
 
 #define DEFAULT_CHANNEL "Hall"
 
@@ -30,7 +32,7 @@ Default::Default(PluginManagerInterface* parent) : DefaultPlugin(parent) {
 
     // Load the default topic
     QFile file(manager()->dataDir() + "/topic/" + DEFAULT_CHANNEL);
-    if (!file.open(IO_ReadOnly)) {
+    if (!file.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read topic file" << std::endl;
     } else {
 	QTextStream stream(&file);
@@ -83,20 +85,20 @@ void Default::incomingUser(const QString& login) {
 
     // Send it the topic
     if (channels[DEFAULT_CHANNEL].topic != "")
-        topicCmd(login,"");
+        topicCmd(login,QStringList(""));
 }
 
 void Default::outgoingUser(const QString& login) {
   QString channel = findChannel(login);
-  channels[channel].users.remove(login);
+  channels[channel].users.removeAll(login);
   if(!channels[channel].users.count())
     channels.remove(channel);
 }
 
 void Default::renamedUser(const QString& old_login, const QString& new_login) {
     for(QMap<QString,Channel>::Iterator it = channels.begin(); it != channels.end(); ++it) {
-	if((*it).users.find(old_login) != (*it).users.end()) {
-	    (*it).users.remove(old_login);
+	if((*it).users.indexOf(old_login) != -1) {
+	    (*it).users.removeAll(old_login);
 	    (*it).users << new_login;
 	}
     }
@@ -115,7 +117,7 @@ void Default::exportCommands() {
 void Default::joinCmd(const QString& from, const QStringList& list) {
     QString channel = findChannel(from);
     if(channel != list[0]) {
-        channels[channel].users.remove(from);
+        channels[channel].users.removeAll(from);
         if(!channels[channel].users.count())
             channels.remove(channel);
         else {
@@ -131,7 +133,7 @@ void Default::joinCmd(const QString& from, const QStringList& list) {
         channels[list[0]].users << from;
         // display the channel topic
         if (channels[list[0]].topic != "")
-            topicCmd(from, "");
+            topicCmd(from, QStringList(""));
     } else {
         QString txt("You are already in channel " +  channel);
         manager()->connectionPlugin()->serverSend(from,txt);
@@ -140,7 +142,7 @@ void Default::joinCmd(const QString& from, const QStringList& list) {
 
 void Default::leaveCmd(const QString& from, const QStringList&) {
 	QString cmd(DEFAULT_CHANNEL);
-	joinCmd(from, cmd);
+	joinCmd(from, QStringList(cmd));
 }
 
 void Default::channelsCmd(const QString& from, const QStringList&) {
@@ -149,7 +151,7 @@ void Default::channelsCmd(const QString& from, const QStringList&) {
 	int count = 0;
     for(QMap<QString,Channel>::Iterator it = channels.begin(); it != channels.end(); ++it,++count) {
         //txt += "\n" + it.key() + "(" + QString::number(it.data().users.count()) + ")";
-	    txt += QString("\n%1 %2 %3").arg(it.key().left(8),-8).arg(QString::number(it.data().users.count()),5).arg(it.data().topic.left(48),-48);
+	    txt += QString("\n%1 %2 %3").arg(it.key().left(8),-8).arg(QString::number(it.value().users.count()),5).arg(it.value().topic.left(48),-48);
     }
     manager()->connectionPlugin()->send(from,txt);
 	txt = QString("There ") + (count-1?"are":"is") + " currently " + QString::number(count) + " channel" + (count-1?"s":"");
@@ -236,7 +238,7 @@ void Default::emoteCmd(const QString& from, const QStringList& list) {
 void Default::topicCmd(const QString& from, const QStringList& list) {
     QString arg = list[0];
     QString theChannel = findChannel(from);
-    arg = arg.stripWhiteSpace();
+    arg = arg.simplified();
     if (arg == "") {
         // Show the current channel topic
         if (channels[theChannel].topic != "")
@@ -255,7 +257,7 @@ void Default::topicCmd(const QString& from, const QStringList& list) {
 
 const QString& Default::findChannel(const QString & user) {
     for(QMap<QString,Channel>::Iterator it = channels.begin(); it != channels.end(); ++it) {
-        if((*it).users.find(user) != (*it).users.end()) {
+        if((*it).users.indexOf(user) != -1) {
             return it.key();
         }
     }

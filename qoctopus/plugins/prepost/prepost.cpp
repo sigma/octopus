@@ -15,6 +15,7 @@
 
 #include <qregexp.h>
 #include <qdatetime.h>
+#include <QTextStream>
 
 #include "prepost.h"
 
@@ -30,16 +31,16 @@ PrePost::~PrePost() {}
 
 void PrePost::modifiedInternalVariable(const QString& login, const QString& name, const QString& value) {
     if(name == "away") {
-	QStringList::Iterator it = away_cache.find(login);
+        int index = away_cache.indexOf(login);
         QString txt(login);
         if(value == "1") {
             txt += " is away";
-	    if(it == away_cache.end())
+	    if(index == -1)
 		away_cache << login;
         } else {
             txt += " is back";
-	    if(it != away_cache.end())
-		away_cache.erase(it);
+	    if(index != -1)
+		away_cache.removeAt(index);
         }
         manager()->connectionPlugin()->serverBroadcast(txt);
     }
@@ -69,8 +70,8 @@ QString PrePost::treatOutgoingMessage(const QString& to, const QString& msg) {
         return QString::null;
     }
 #else
-    if(away_cache.find(to) != away_cache.end()) {
-	QStringList list = QStringList::split("\n",msg);
+    if(away_cache.indexOf(to) != -1) {
+	QStringList list = msg.split("\n",QString::SkipEmptyParts);
         QString date = QTime::currentTime().toString("hh:mm:ss ");
         return date + list.join("\n" + date);
     } else
@@ -80,11 +81,11 @@ QString PrePost::treatOutgoingMessage(const QString& to, const QString& msg) {
 
 void PrePost::loadAlias(const QString& login) {
     QFile fin(manager()->dataDir() + "/alias/" + login);
-    if (fin.open(IO_ReadOnly)) {
+    if (fin.open(QIODevice::ReadOnly)) {
         QTextStream stream(&fin);
         QString line;
         while((line = stream.readLine()) != QString::null) {
-            int pos = line.find(' ');
+            int pos = line.indexOf(' ');
             alias[login][line.left(pos)] = line.right(line.length() - pos - 1);
         }
     }
@@ -93,14 +94,14 @@ void PrePost::loadAlias(const QString& login) {
 
 void PrePost::storeAlias(const QString& login) {
     QFile fout(manager()->dataDir() + "/alias/" + login);
-    if( !fout.open(IO_WriteOnly)) {
+    if( !fout.open(QIODevice::WriteOnly)) {
         std::cerr << "Could not write alias file." << std::endl;
         return;
     }
 
     QTextStream stream(&fout);
     for(AliasMap::Iterator it = alias[login].begin(); it != alias[login].end(); ++it) {
-        stream << (it.key() + " " + it.data() + "\n");
+        stream << (it.key() + " " + it.value() + "\n");
     }
     fout.close();
 }
@@ -123,7 +124,7 @@ void PrePost::outgoingUser(const QString& login) {
         storeAlias(login);
     }
     alias.remove(login);
-    away_cache.remove(login);
+    away_cache.removeAll(login);
 }
 
 void PrePost::killedUser(const QString& login) {
@@ -135,9 +136,9 @@ void PrePost::killedUser(const QString& login) {
 void PrePost::renamedUser(const QString& old_login, const QString& new_login) {
     QFile fin(manager()->dataDir() + "/alias/" + old_login);
     QFile fout(manager()->dataDir() + "/alias/" + new_login);
-    if(fin.open(IO_ReadOnly)) {
-        if(fout.open(IO_WriteOnly)) {
-            fout.writeBlock(fin.readAll());
+    if(fin.open(QIODevice::ReadOnly)) {
+        if(fout.open(QIODevice::WriteOnly)) {
+            fout.write(fin.readAll());
             fout.close();
         }
         fin.close();
@@ -160,7 +161,7 @@ void PrePost::aliasCmd(const QString& from, const QStringList& list) {
             for(AliasMap::Iterator it = alias[from].begin(); it != alias[from].end(); ++it) {
                 if (txt != "")
                     txt += "\n";
-                txt += it.key() + " -> " + it.data();
+                txt += it.key() + " -> " + it.value();
             }
             manager()->connectionPlugin()->send(from, txt);
             manager()->connectionPlugin()->serverSend(from, "End of Aliases");
@@ -202,18 +203,18 @@ void PrePost::delAlias(const QString& login, const QString& com) {
 }
 
 QString PrePost::expandAliases(const QString& from, const QString& msg) {
-    int pos = msg.find(' ');
+    int pos = msg.indexOf(' ');
     QString word = (pos != -1)?msg.left(pos):msg;
     QStringList args;
     if(pos != -1)
-        args = QStringList::split(' ',msg.right(msg.length() - pos - 1));
+        args = msg.right(msg.length() - pos - 1).split(' ',QString::SkipEmptyParts);
     QStringList largs;
     for(AliasMap::Iterator it = alias[from].begin(); it != alias[from].end(); ++it) {
         if(it.key() == word) {
             QString tmp = *it;
             QString res;
             int i = 0;
-            while((i = tmp.find('$')) != -1) {
+            while((i = tmp.indexOf('$')) != -1) {
                 res += tmp.left(i);
                 tmp.remove(0,i);
                 if(tmp.startsWith("$$")) {
@@ -228,14 +229,14 @@ QString PrePost::expandAliases(const QString& from, const QString& msg) {
                 } else if (tmp.startsWith("$+")) {
                     if(args.begin() != args.end()) {
                         largs << *(args.begin());
-                        args.remove(args.begin());
+                        args.erase(args.begin());
                     }
                     tmp.remove(0,2);
                 } else if (tmp.startsWith("$-")) {
                     if(largs.begin() != largs.end()) {
                         QStringList::Iterator p = --largs.end();
                         args.prepend(*p);
-                        largs.remove(p);
+                        largs.erase(p);
                     }
                     tmp.remove(0,2);
                 } else {

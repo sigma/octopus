@@ -49,7 +49,7 @@ Connect::Connect(PluginManagerInterface* parent) : ConnectionPlugin(parent) {
 
 Connect::~Connect() {
     for(PortsMap::Iterator it = map_ports.begin(); it != map_ports.end(); ++it)
-        delete it.data();
+        delete it.value();
 }
 
 void Connect::incomingUser(const QString& login) {
@@ -77,26 +77,26 @@ void Connect::renamedUser(const QString& old_login, const QString& new_login) {
     NameMap::Iterator it1 = map_name.find(old_login);
     if(it1 != map_name.end()) {
         HostList l = *it1;
-        map_name.remove(it1);
+        map_name.erase(it1);
         map_name.insert(new_login,l);
     }
 
-    QValueList<SocketMap::Iterator> iterators;
+    QList<SocketMap::Iterator> iterators;
     for(SocketMap::Iterator it2 = map_socket.begin(); it2 != map_socket.end(); ++it2) {
         if(*it2 == old_login) {
             iterators << it2;
         }
     }
-    for(QValueList<SocketMap::Iterator>::Iterator iter = iterators.begin(); iter != iterators.end(); ++iter) {
+    for(QList<SocketMap::Iterator>::Iterator iter = iterators.begin(); iter != iterators.end(); ++iter) {
         ClientSocket* socket = (*iter).key();
-        map_socket.remove(*iter);
+        map_socket.erase(*iter);
         map_socket.insert(socket,new_login);
     }
 
     HostMap::Iterator it3 = map_host.find(old_login);
     if(it3 != map_host.end()) {
         QStringList l = *it3;
-        map_host.remove(it3);
+        map_host.erase(it3);
         map_host.insert(new_login,l);
     }
 
@@ -106,7 +106,7 @@ void Connect::renamedUser(const QString& old_login, const QString& new_login) {
 
 bool Connect::loadHistory() {
     QFile fin(manager()->dataDir() + "/history");
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read history file" << std::endl;
         return false;
     }
@@ -131,7 +131,7 @@ bool Connect::loadHistory() {
 
 void Connect::addToHistory(const QString& msg) {
     QFile fout(manager()->dataDir() + "/history");
-    if( !fout.open(IO_WriteOnly | IO_Append)) {
+    if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
         std::cerr << "Could not write the history file." << std::endl;
         return;
     }
@@ -316,7 +316,7 @@ void Connect::broadcastOthers(const QString & except, const QString & msg) {
 
 void Connect::broadcastOthers(const QStringList & except, const QString & msg) {
     for (NameMap::Iterator it = map_name.begin(); it != map_name.end(); ++it)
-        if(except.find(it.key()) == except.end())
+        if(except.indexOf(it.key()) == -1)
             for(HostList::Iterator iter = (*it).begin(); iter != (*it).end(); ++iter) {
                 QTextStream(*iter) << manager()->prepostPlugin()->treatOutgoingMessage(it.key(),msg).replace(QChar('\n'),"\r\n") + "\r\n";
             }
@@ -324,7 +324,7 @@ void Connect::broadcastOthers(const QStringList & except, const QString & msg) {
 
 void Connect::broadcast(const QString & msg) {
     for (SocketMap::Iterator it = map_socket.begin(); it != map_socket.end(); ++it)
-        QTextStream(it.key()) << manager()->prepostPlugin()->treatOutgoingMessage(it.data(),msg).replace(QChar('\n'),"\r\n") + "\r\n";
+        QTextStream(it.key()) << manager()->prepostPlugin()->treatOutgoingMessage(it.value(),msg).replace(QChar('\n'),"\r\n") + "\r\n";
 }
 
 bool Connect::serverSend(const QString & to, const QString & msg) {
@@ -391,16 +391,16 @@ void Connect::connectionClose() {
     std::cout << "Server closed connection\n";
     QMap<ClientSocket*,QString>::Iterator it = map_socket.find((ClientSocket*)sender());
     if(it != map_socket.end()) {
-        if(map_name[it.data()].count() == 1) {
-            manager()->out(it.data());
-            map_name.remove(it.data());
+        if(map_name[it.value()].count() == 1) {
+            manager()->out(it.value());
+            map_name.remove(it.value());
         } else {
             QString msg("%1 closes a session!");
-            serverBroadcast(msg.arg(it.data()));
-            map_name[it.data()].remove((ClientSocket*)sender());
-            updateHosts(it.data());
+            serverBroadcast(msg.arg(it.value()));
+            map_name[it.value()].removeAll((ClientSocket*)sender());
+            updateHosts(it.value());
         }
-        map_socket.remove(it);
+        map_socket.erase(it);
     } else
         map_pending.remove((ClientSocket*)sender());
 }
@@ -410,18 +410,18 @@ void Connect::connectionClosed() {
 
     QMap<ClientSocket*,QString>::Iterator it = map_socket.find((ClientSocket*)sender());
     if(it != map_socket.end()) {
-        if(map_name[it.data()].count() == 1) {
+        if(map_name[it.value()].count() == 1) {
             QString msg("%1 disconnects!");
-            serverBroadcast(msg.arg(it.data()));
-            manager()->out(it.data());
-            map_name.remove(it.data());
+            serverBroadcast(msg.arg(it.value()));
+            manager()->out(it.value());
+            map_name.remove(it.value());
         } else {
             QString msg("%1 closes a session!");
-            serverBroadcast(msg.arg(it.data()));
-            map_name[it.data()].remove((ClientSocket*)sender());
-            updateHosts(it.data());
+            serverBroadcast(msg.arg(it.value()));
+            map_name[it.value()].removeAll((ClientSocket*)sender());
+            updateHosts(it.value());
         }
-        map_socket.remove(it);
+        map_socket.erase(it);
     } else
         map_pending.remove((ClientSocket*)sender());
 }
@@ -475,7 +475,7 @@ void Connect::processText(const QString & txt) {
         QString msg = txt;
         msg = manager()->prepostPlugin()->treatIncomingMessage(author,msg);
         if(msg != "") {
-            QStringList l = QStringList::split("\n",msg);
+            QStringList l = msg.split('\n',QString::SkipEmptyParts);
             for(QStringList::Iterator it = l.begin(); it != l.end(); it++)
                 manager()->dispatch(author, *it);
         }
@@ -484,9 +484,9 @@ void Connect::processText(const QString & txt) {
 
 void Connect::closeAll() {
     for(PortsMap::Iterator it = map_ports.begin(); it != map_ports.end(); ++it) {
-        it.data()->killall(this);
-        delete it.data();
-        map_ports.remove(it);
+        it.value()->killall(this);
+        delete it.value();
+        map_ports.erase(it);
     }
     //    std::cout << "end of closeAll()" << std::endl;
 }
@@ -494,9 +494,9 @@ void Connect::closeAll() {
 void Connect::closePort(int port) {
     PortsMap::Iterator it = map_ports.find(port);
     if (it != map_ports.end()) {
-        it.data()->killall(this);
-        delete it.data();
-        map_ports.remove(it);
+        it.value()->killall(this);
+        delete it.value();
+        map_ports.erase(it);
     }
 }
 
@@ -530,7 +530,7 @@ void Connect::accept(const QString& login, ClientSocket* socket) {
 
 void Connect::sendLogo(ClientSocket* s) {
     QFile fin(manager()->dataDir() + "/logo");
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read logo file" << std::endl;
         return;
     }

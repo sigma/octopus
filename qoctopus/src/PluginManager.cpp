@@ -21,7 +21,7 @@
 #include <typeinfo>
 
 #include <qstring.h>
-#include <qapplication.h>
+#include <QCoreApplication>
 #include <qtimer.h>
 
 #include "PluginManager.h"
@@ -74,8 +74,7 @@ Plugin* PluginManager::loadPluginFile(QString file_name, QString *error) {
     void* plug = dlopen(file_name, RTLD_LAZY);
     if (!plug) {
         cerr << "Cannot load library: " << dlerror() << '\n';
-        *error = QString("cannot load library: %2").arg(dlerror());
-        *error = "cannot load library " + file_name + " : " + dlerror();
+        *error = QString("cannot load library %1 : %2").arg(file_name).arg(dlerror());
         return 0;
     }
     d.handler = plug;
@@ -85,7 +84,7 @@ Plugin* PluginManager::loadPluginFile(QString file_name, QString *error) {
     string_func_t* pluginName = (string_func_t*) dlsym(plug, "pluginName");
     if (!create_plugin || !destroy_plugin || !pluginName) {
         cerr << "Cannot load symbols: " << dlerror() << '\n';
-        *error = "cannot load " + file_name + " symbols: " + dlerror();
+        *error = QString("cannot load %1 symbols : %2").arg(file_name).arg(dlerror());
         return 0;
     }
 
@@ -108,7 +107,7 @@ void PluginManager::loadConnectionPluginFile(QString file_name) {
     QString error;
     connect = static_cast<ConnectionPlugin*>(loadPluginFile(file_name,&error));
     if(!connect) {
-        cerr << "Incorrect Connection Plugin : " + error << endl;
+        cerr << QString("Incorrect Connection Plugin : %1").arg(error).ascii() << endl;
         exit(1);
     }
 }
@@ -117,7 +116,7 @@ void PluginManager::loadDefaultPluginFile(QString file_name) {
     QString error;
     def = static_cast<DefaultPlugin*>(loadPluginFile(file_name, &error));
     if(!def) {
-        cerr << "Incorrect Default Plugin : " + error << endl;
+        cerr << QString("Incorrect Default Plugin : %1").arg(error).ascii() << endl;
         exit(1);
     }
 }
@@ -126,7 +125,7 @@ void PluginManager::loadDatabasePluginFile(QString file_name) {
     QString error;
     data = static_cast<DatabasePlugin*>(loadPluginFile(file_name, &error));
     if(!data) {
-        cerr << "Incorrect Database Plugin : " + error  << endl;
+        cerr << QString("Incorrect Database Plugin : ").arg(error).ascii()<< endl;
         exit(1);
     }
 }
@@ -135,7 +134,7 @@ void PluginManager::loadPrePostPluginFile(QString file_name) {
     QString error;
     prepost = static_cast<PrePostPlugin*>(loadPluginFile(file_name, &error));
     if(!prepost) {
-        cerr << "Incorrect PrePost Plugin : " + error << endl;
+        cerr << QString("Incorrect PrePost Plugin : %1").arg(error).ascii() << endl;
         exit(1);
     }
 }
@@ -144,7 +143,7 @@ void PluginManager::loadLogPluginFile(QString file_name) {
     QString error;
     log = static_cast<LogPlugin*>(loadPluginFile(file_name, &error));
     if (!log) {
-        cerr << "Incorrect Log Plugin : " + error << endl;
+        cerr << QString("Incorrect Log Plugin : %1").arg(error).ascii() << endl;
         exit(1);
     }
 }
@@ -193,7 +192,7 @@ void PluginManager::registerCommand(Plugin* plugin, const QString & prefix,
 
     available_commands.insert(prefix,cr);
 
-    cerr << "Registered command \"" << prefix << "\"" << endl;
+    cerr << QString("Registered command \"%1\"").arg(prefix).ascii() << endl;
 }
 
 bool PluginManager::isLoadedPlugin(const QString &name) const {
@@ -212,14 +211,13 @@ void PluginManager::dispatch(const QString & from, const QString & msg) {
             break;
         }
     }
-
-    ComRef cr = it.data();
+    ComRef &cr = it.value();
     if (length) {
         if(cr.group.isNull() || databasePlugin()->inGroup(from,cr.group)) {
 //            std::cerr << "Matching \"" << msg << "\" (command " << it.key() << ") against \"" << cr.regexp.pattern() << "\"" << std::endl;
             if(cr.regexp.exactMatch(msg.right(msg.length() - length))) {
                 QStringList args;
-                for(QValueList<int>::Iterator iter = cr.regexp_positions.begin(); iter != cr.regexp_positions.end(); ++iter)
+                for(QList<int>::Iterator iter = cr.regexp_positions.begin(); iter != cr.regexp_positions.end(); ++iter)
                     args << cr.regexp.cap(*iter);
 //                std::cerr << "Calling " << it.key() << " with args : \"" << args.join("\" \"") << "\"" << std::endl;
                 (cr.plugin)->callCommand(cr.id,from,args);
@@ -232,8 +230,9 @@ void PluginManager::dispatch(const QString & from, const QString & msg) {
             connectionPlugin()->serverSend(from, it.key() + ": permission denied.");
         }
     }
-    else
+    else {
         defaultPlugin()->manageMessage(from, msg);
+    }
 }
 
 void PluginManager::in(const QString& login) {
@@ -277,9 +276,9 @@ void PluginManager::shutdownCmd(const QString&, const QStringList&) {
     connectionPlugin()->serverBroadcast(txt);
 
     for(std::list<Data>::iterator it = active.begin(); it != active.end(); ++it) {
-        std::cout << "Shutdown plugin " << (*it).plugin->pluginName() << std::endl;
+        std::cout << QString("Shutdown plugin %1").arg((*it).plugin->pluginName()).ascii() << std::endl;
         (*it).plugin->shutdown();
-        std::cout << "Plugin " << (*it).plugin->pluginName() << " unloaded" << std::endl;
+        std::cout << QString("Plugin %1 unloaded").arg((*it).plugin->pluginName()).ascii() << std::endl;
     }
     delete this;
 //            QTimer::singleShot(1000,this,SLOT(deleteLater()));
@@ -293,7 +292,7 @@ void PluginManager::commandsCmd(const QString& from, const QStringList&) {
             message += "\n";
         message += QString("%1 commands:").arg(this->pluginName());
         for (QMap<QString,QString>::Iterator commandIt = this->desc_map.begin(); commandIt != this->desc_map.end(); ++commandIt) {
-            message += "\n  " + QString("%1 %2").arg(commandIt.key(), -12).arg(commandIt.data(), -60);
+            message += "\n  " + QString("%1 %2").arg(commandIt.key(), -12).arg(commandIt.value(), -60);
         }
     }
     for(std::list<Data>::iterator it = active.begin(); it != active.end(); ++it) {
@@ -302,7 +301,7 @@ void PluginManager::commandsCmd(const QString& from, const QStringList&) {
                 message += "\n";
             message += QString("%1 commands:").arg((*it).plugin->pluginName());
             for (QMap<QString,QString>::Iterator commandIt = (*it).plugin->desc_map.begin(); commandIt != (*it).plugin->desc_map.end(); ++commandIt) {
-                message += "\n  " + QString("%1 %2").arg(commandIt.key(), -12).arg(commandIt.data(), -60);
+                message += "\n  " + QString("%1 %2").arg(commandIt.key(), -12).arg(commandIt.value(), -60);
             }
         }
     }
@@ -355,8 +354,8 @@ void PluginManager::rmmodCmd(const QString& from, const QStringList& list) {
             }
             active.erase(it);
             for(CommandMap::Iterator iter = available_commands.begin(); iter != available_commands.end(); ++iter)
-                if(iter.data().plugin == plug)
-                    available_commands.remove(iter);
+                if(iter.value().plugin == plug)
+                    available_commands.erase(iter);
             destroy_t* destroy_plugin = (destroy_t*) dlsym((*it).handler, "destroy");
             destroy_plugin(plug);
             dlclose((*it).handler);
@@ -386,7 +385,7 @@ bool PluginManager::boot() {
         loadPluginFile(*it, &error);
     if(connectionPlugin() && defaultPlugin() && databasePlugin() && prepostPlugin() && logPlugin()) {
         if(ports.count())
-            for(QValueList<int>::Iterator it = ports.begin(); it != ports.end(); ++it)
+            for(QList<int>::Iterator it = ports.begin(); it != ports.end(); ++it)
                 connectionPlugin()->launch(*it);
         else
             connectionPlugin()->launch(DEFAULT_PORT);
@@ -422,7 +421,7 @@ void PluginManager::buildRegexp(ComRef* cr) {
     int pos = 0;
     QRegExp rx("[\\(\\{]");
     while(index != -1) {
-        index = re.find(rx,index);
+        index = re.indexOf(rx,index);
         if(index != -1) {
             pos++;
             if(re[index] == '{') {

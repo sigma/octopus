@@ -29,7 +29,7 @@
 #include "simpleserver.h"
 #include "server.h"
 
-SimpleServer::SimpleServer( int port, QObject* parent ) : QServerSocket( port, 1, parent ) {
+SimpleServer::SimpleServer( int port, QObject* parent ) : Q3ServerSocket( port, 1, parent ) {
   if ( !ok() ) {
     qWarning("Failed to bind to port " + QString::number(port));
     //            exit(1);
@@ -40,7 +40,7 @@ SimpleServer::~SimpleServer() {}
 
 void SimpleServer::killall(Connect* s) {
 //    std::cout << " BEGIN killall() " << sockets.count() << std::endl;
-    for(QValueList<ClientSocket*>::Iterator it = sockets.begin(); it != sockets.end(); ++it) {
+    for(QList<ClientSocket*>::Iterator it = sockets.begin(); it != sockets.end(); ++it) {
       disconnect(*it, SIGNAL(connectionClosed()),
  		 s, SLOT(connectionClose()));
       disconnect(*it, SIGNAL(connectionClosed()),
