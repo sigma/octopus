@@ -63,6 +63,8 @@ void Tell::tellCmd(const QString& from, const QStringList& list) {
 }
 
 void Tell::senddataCmd(const QString& from, const QStringList& list) {
+    octAssert(list.count() == 2);
+
     QString to = manager()->databasePlugin()->canonicalName(list[0]);
     QString txt1("|" + from + "| " + list[1]);
     if(!manager()->connectionPlugin()->send(to,txt1)) {

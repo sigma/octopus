@@ -78,6 +78,8 @@ void Wall::exportCommands() {
 }
 
 void Wall::wallCmd(const QString &from, const QStringList& list) {
+    octAssert(list.size() < 2);
+
     if(list.size() != 0 && list[0] != "") {
         QString message(QDate::currentDate().toString("dd/MM/yyyy ") + QTime::currentTime().toString("hh:mm:ss ") + from);
         for(int i=from.length(); i<=manager()->databasePlugin()->validLoginLength(); i++)
@@ -103,6 +105,8 @@ void Wall::wallCmd(const QString &from, const QStringList& list) {
 }
 
 void Wall::modwallCmd(const QString &from, const QStringList &list) {
+    octAssert(list.size() < 3);
+
     int num = list[0].toInt();
     QString replacement = QString::null;
     if (list[1] != "")

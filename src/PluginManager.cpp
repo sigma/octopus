@@ -64,7 +64,9 @@ void PluginManager::destroyPlugins() {
     log = 0;
 }
 
-void PluginManager::loadPluginsDirectory(QString /*dir_name*/) {}
+void PluginManager::loadPluginsDirectory(QString /*dir_name*/) {
+    octWarningOutput("Not yet implemented\n");
+}
 
 Plugin* PluginManager::loadPluginFile(QString file_name, QString *error) {
 
