@@ -427,14 +427,14 @@ void PluginManager::buildRegexp(ComScheme* sch) {
         .replace(QChar('.'),"\\.")
         .replace("<int>","\\d+")
         .replace("<word>","[^ ,]+")
-        .replace("<wordlist>","[^ ,]+(,[^ ,]+)*")
+        .replace("<wordlist>","[^ ,]+(?:,[^ ,]+)*")
         .replace("<value>","[^ ]+")
         .replace("<sentence>","[^ ].*")
-        .replace("<access>","(public|private)")
-        .replace("<mode>","(resident|transient)")
-        .replace("<type>","(string|int|bool)")
+        .replace("<access>","(?:public|private)")
+        .replace("<mode>","(?:resident|transient)")
+        .replace("<type>","(?:string|int|bool)")
         .replace("<login>","\\w+")
-        .replace("<loginlist>","\\w+(,\\w+)*")
+        .replace("<loginlist>","\\w+(?:,\\w+)*")
         .replace(QChar('}'),")");
 
     int index=0;
