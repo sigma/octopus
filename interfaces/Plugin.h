@@ -71,10 +71,11 @@
     private:
 
 #include <iostream>
-#include <qmap.h>
-#include <qstring.h>
-#include <qobject.h>
-#include <qdir.h>
+
+#include <QMap>
+#include <QString>
+#include <QObject>
+#include <QDir>
 
 class PluginManagerInterface;
 
