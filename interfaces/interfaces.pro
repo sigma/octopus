@@ -22,6 +22,7 @@ CONFIG += debug \
           thread \
           staticlib
 QMAKE_CXXFLAGS_DEBUG += -g3 \
+			-gdwarf-2 \
                         -Wall \
                         -Werror \
                         -Wno-long-long \

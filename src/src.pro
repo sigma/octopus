@@ -13,11 +13,14 @@ CONFIG += release \
           thread
 TARGET = ../bin/qoctopus
 QMAKE_CXXFLAGS_DEBUG += -g3 \
+			-gdwarf-2 \
                         -Wall \
                         -Werror \
                         -Wno-long-long \
                         -ansi
-QMAKE_CXXFLAGS_RELEASE += -Wall \
+QMAKE_CXXFLAGS_RELEASE += -g3 \
+			  -ggdb \
+			  -Wall \
                           -Werror \
                           -Wno-long-long \
                           -ansi
