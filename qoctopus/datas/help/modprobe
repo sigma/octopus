@@ -1,0 +1,12 @@
+\name
+modprobe - load a plugin
+\synopsis
+mobprobe <plugin filename>
+\description
+Allows you to hot-load a plugin.
+You must specify the true plugin filename.
+\example
+> modprobe libwall.so
+Plugin loaded
+\see also 
+lsmod, rmmod

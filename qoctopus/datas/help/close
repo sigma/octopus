@@ -1,0 +1,10 @@
+\name
+close - close a port
+\synopsis
+close <port>
+\description
+Allows you to close a listening server port.
+\example
+> close 3000
+\see also
+lsports, open

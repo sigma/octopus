@@ -1,0 +1,8 @@
+\name
+history - display the server history
+\synopsis
+history
+\description
+Allows you to display connections, deconnections, shutdowns, and all major server events.
+\see also
+uptime

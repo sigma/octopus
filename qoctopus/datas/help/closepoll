@@ -1,0 +1,13 @@
+\name
+closepoll - close a poll
+\synopsis
+closepoll <id>
+\description
+Allows you to close a poll.
+\example
+> closepoll 1
+Poll 1 (Mother should I build the wall?) is now closed!
+Results :
+sure : 3
+no : 0
+dunno : 0

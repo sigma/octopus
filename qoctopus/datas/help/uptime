@@ -1,0 +1,6 @@
+\name
+uptime - display uptime infos
+\synopsis
+uptime
+\description
+Allows you to display some server uptime infos.

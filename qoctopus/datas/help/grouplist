@@ -1,0 +1,12 @@
+\name
+grouplist - display all groups
+\synopsis
+grouplist
+\description
+Display all existing groups.
+\example
+> grouplist
+<Mtp> Existing groups:
+System
+Force
+<Mtp> End of groups
