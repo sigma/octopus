@@ -1,13 +1,7 @@
-For the next release : 
+For the next release :
 
 - telnet compatibility
 
-- command line interpreter? (may be disabled)
-
 - a better format of finger display
 
-- improved documentation (alias, etc.)
-
 - message <count> ?
-
-- wall <user> ?
