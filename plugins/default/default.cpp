@@ -53,7 +53,6 @@ void Default::modifiedInternalVariable(const QString& /*login*/, const QString& 
 
 void Default::manageMessage(const QString& author, const QString& msg) {
     QString s("<" + author + "> " + msg);
-    //    std::cout << "[Default] : <" << author << "> " << msg << std::endl;
     broadcastChannel(findChannel(author),s);
     //    manager()->connectionPlugin()->broadcast(s);
 }

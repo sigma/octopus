@@ -53,7 +53,6 @@ signals:
 
 private slots:
     void closedSocket() {
-//    std::cout << "Removed a socket" << std::endl;
         sockets.removeAll((ClientSocket*) sender());
     }
 

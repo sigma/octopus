@@ -39,7 +39,6 @@ SimpleServer::SimpleServer( int port, QObject* parent ) : Q3ServerSocket( port, 
 SimpleServer::~SimpleServer() {}
 
 void SimpleServer::killall(Connect* s) {
-//    std::cout << " BEGIN killall() " << sockets.count() << std::endl;
     for(QList<ClientSocket*>::Iterator it = sockets.begin(); it != sockets.end(); ++it) {
       disconnect(*it, SIGNAL(connectionClosed()),
  		 s, SLOT(connectionClose()));
@@ -52,7 +51,6 @@ void SimpleServer::killall(Connect* s) {
       (*it)->brutallyClose();
     }
     sockets.clear();
-//    std::cout << " END killall()" << std::endl;
 }
 
 void SimpleServer::newConnection( int socket ) {

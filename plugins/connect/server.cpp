@@ -373,7 +373,7 @@ void Connect::launch(int port) {
 
 void Connect::newConnect( ClientSocket *s ) {
     s->connectedFor = QDateTime::currentDateTime();
-    std::cout << "New connection\n";
+    octInfo("New connection\n");
     connect( s, SIGNAL(connectionClosed()),
              SLOT(connectionClosed()) );
     connect( s, SIGNAL(delayedCloseFinished()),
@@ -389,7 +389,7 @@ void Connect::newConnect( ClientSocket *s ) {
 }
 
 void Connect::connectionClose() {
-    std::cout << "Server closed connection\n";
+    octInfo("Server closed connection\n");
     QMap<ClientSocket*,QString>::Iterator it = map_socket.find((ClientSocket*)sender());
     if(it != map_socket.end()) {
         if(map_name[it.value()].count() == 1) {
@@ -407,7 +407,7 @@ void Connect::connectionClose() {
 }
 
 void Connect::connectionClosed() {
-    std::cout << "Client closed connection\n";
+    octInfo("Client closed connection\n");
 
     QMap<ClientSocket*,QString>::Iterator it = map_socket.find((ClientSocket*)sender());
     if(it != map_socket.end()) {
@@ -489,7 +489,6 @@ void Connect::closeAll() {
         delete it.value();
         map_ports.erase(it);
     }
-    //    std::cout << "end of closeAll()" << std::endl;
 }
 
 void Connect::closePort(int port) {
@@ -503,7 +502,6 @@ void Connect::closePort(int port) {
 
 void Connect::shutdown() {
     closeAll();
-    //    std::cout << "shutdown()" << std::endl;
 }
 
 void Connect::accept(const QString& login, ClientSocket* socket) {

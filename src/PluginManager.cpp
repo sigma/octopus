@@ -288,14 +288,14 @@ void PluginManager::rebootCmd(const QString&, const QStringList&) {
 }
 
 void PluginManager::shutdownCmd(const QString&, const QStringList&) {
-    std::cout << "System halting now" << std::endl;
+    octInfo("System halting now\n");
     QString txt("System halting now");
     connectionPlugin()->serverBroadcast(txt);
 
     for(std::list<Data>::iterator it = active.begin(); it != active.end(); ++it) {
-        std::cout << QString("Shutdown plugin %1").arg((*it).plugin->pluginName()).ascii() << std::endl;
+        octInfo(QString("Shutdown plugin %1\n").arg((*it).plugin->pluginName()));
         (*it).plugin->shutdown();
-        std::cout << QString("Plugin %1 unloaded").arg((*it).plugin->pluginName()).ascii() << std::endl;
+        octInfo(QString("Plugin %1 unloaded\n").arg((*it).plugin->pluginName()));
     }
     delete this;
 //            QTimer::singleShot(1000,this,SLOT(deleteLater()));
@@ -406,10 +406,8 @@ bool PluginManager::boot() {
                 connectionPlugin()->launch(*it);
         else
             connectionPlugin()->launch(DEFAULT_PORT);
-//        std::cout << "boot() ok" << std::endl;
         return true;
     } else {
-//        std::cout << "boot() ko" << std::endl;
         return false;
     }
 }
