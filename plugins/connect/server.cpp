@@ -296,14 +296,15 @@ QDateTime Connect::serverStartDateTime() const {
 }
 
 bool Connect::send(const QString & to, const QString & msg) {
-    HostList l = *(map_name.find(to));
-    if(l.count()) {
+    HostList l = map_name.value(to);
+    if(!l.isEmpty()) {
         for(HostList::Iterator it = l.begin(); it != l.end(); ++it) {
             QTextStream(*it) << manager()->prepostPlugin()->treatOutgoingMessage(to,msg).replace(QChar('\n'),"\r\n") + "\r\n";
         }
         return true;
-    } else
+    } else {
         return false;
+    }
 }
 
 void Connect::broadcastOthers(const QString & except, const QString & msg) {
