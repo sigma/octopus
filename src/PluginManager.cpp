@@ -20,9 +20,8 @@
 #include <dlfcn.h>
 #include <typeinfo>
 
-#include <qstring.h>
 #include <QCoreApplication>
-#include <qtimer.h>
+#include <QTimer>
 
 #include "PluginManager.h"
 
@@ -427,14 +426,14 @@ void PluginManager::buildRegexp(ComScheme* sch) {
         .replace(QChar('.'),"\\.")
         .replace("<int>","\\d+")
         .replace("<word>","[^ ,]+")
-        .replace("<wordlist>","[^ ,]+(?:,[^ ,]+)*")
+        .replace("<wordlist>","[^ ,]+(,[^ ,]+)*")
         .replace("<value>","[^ ]+")
         .replace("<sentence>","[^ ].*")
-        .replace("<access>","(?:public|private)")
-        .replace("<mode>","(?:resident|transient)")
-        .replace("<type>","(?:string|int|bool)")
+        .replace("<access>","(public|private)")
+        .replace("<mode>","(resident|transient)")
+        .replace("<type>","(string|int|bool)")
         .replace("<login>","\\w+")
-        .replace("<loginlist>","\\w+(?:,\\w+)*")
+        .replace("<loginlist>","\\w+(,\\w+)*")
         .replace(QChar('}'),")");
 
     int index=0;
@@ -451,6 +450,7 @@ void PluginManager::buildRegexp(ComScheme* sch) {
             index++;
         }
     }
+    std::cout << re.ascii() << std::endl;
     sch->regexp = QRegExp(" *" + re + " *");
 //    cerr << "    Regexp = \"" << " *" + re + " *" << "\"" << std::endl;
 //    cerr << "    Positions =";
