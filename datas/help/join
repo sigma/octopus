@@ -1,0 +1,10 @@
+\name
+join - join a channel
+\synopsis
+join <channel>
+\description
+Allows you to join or create (if not exists) a channel.
+\example
+> join centralpark
+You join channel centralpark
+     

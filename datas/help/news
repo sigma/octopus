@@ -1,0 +1,59 @@
+\What's new on <Mtp> Chat ?
+v1.2b : (?)
+   root password changed (thanx Toy :-)
+   Big hole in security fixed
+   Commands "alias" and "unalias" added
+   "list" command became "channels"
+v1.3 : (970328)
+   "force ?" command fixed (thanx Dual!)
+   "set" command echo fixed (thanx Sub!)
+   "chgroup" command fixed
+   Login logo added (thanx SenSer!)
+   Help improved
+   Bilou telnet (perhaps) stop kill the server
+   "Idle" channel Added by default
+v1.3b : (970515)
+   echo off during password typing (at last !)
+   SIGPIPE handler fixed (implies less crashes and better T2 handling)
+v1.4a : (970915)
+   new socket kernel (more robust)
+   new commands: "beep", "bump", "clear".
+v1.4b : (971119)
+   new crypt language coded by dragon : type "help chcrypt"
+   sort removed from "users" and "who" before debugging.
+v1.4c : (971203)
+   name now appears during replies
+   "bump" output debugged
+   undocumented hidden suppressed
+v1.5a : (980407)
+   plan0 to plan4 variables added
+   sort put back to "users" and "who" commands
+   "date" command added
+   "birthday" command added
+   birthday variable added (change it with the "set" command)
+   "wall" and "history" are now totally permanent
+   "finger" command upgraded
+v1.6b : (980726)
+   new command line interpreter by Vanhu
+   arguments added to aliases ("help alias")
+   system aliases
+v1.6c : (980930)
+   new help system
+   the help command recursively looks for the asked topic in the help tree
+   the help files can now be placed in directories without forcing the users
+   to type the whole path
+   directory soft links management is beeing implementing, this will allow
+   help subtrees to be located in distinct accounts
+v1.6d : (981009)
+   "formation" user variable added
+   "whereis" command added by Ace
+v1.7a : (981013)
+   "sendmsg" and "showmsg" and "clearmsg" commands added
+v1.7b : (981016)
+   "inout" and "shout" variables added
+v1.7c : (981027)
+   variable "client" corectly handled (and displayed in who)
+v2.0-pre-alpha (octopus fork) : (20030312)
+   complete rewriting 
+   plugins-oriented architecture 
+   most features ported

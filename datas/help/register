@@ -1,0 +1,9 @@
+\name
+register - register you
+\synopsis
+register <password>
+\description
+Allows you to register on the server and specify your password at the same occasion.
+\example
+> register password
+You are registered

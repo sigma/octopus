@@ -1,0 +1,11 @@
+\name
+rmmod - remove an active plugin from the server
+\synopsis
+rmmod <plugin>
+\description
+Allows you to remove an active plugin from the server.
+You must design the plugin name and not the plugin filename.
+\example
+rmmod Wall
+\see also
+lsmod, modprobe

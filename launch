@@ -1,0 +1,16 @@
+#! /bin/bash
+
+prog=`basename $0`
+prefix=`echo $0 | sed s/$prog\$//`
+
+$prefix/bin/qoctopus -p 5000 -r $prefix/datas \
+    -c $prefix/datas/plugins/libconnect.so \
+    -d $prefix/datas/plugins/libdb.so \
+    -x $prefix/datas/plugins/libdefault.so \
+    -t $prefix/datas/plugins/libprepost.so \
+    -g $prefix/datas/plugins/liblog.so \
+    -l $prefix/datas/plugins/libtell.so \
+    -l $prefix/datas/plugins/libwall.so \
+    -l $prefix/datas/plugins/libhelp.so \
+    -l $prefix/datas/plugins/libmsg.so \
+    -l $prefix/datas/plugins/libvote.so

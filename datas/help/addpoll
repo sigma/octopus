@@ -1,0 +1,8 @@
+\name
+addpoll - add a poll
+\synopsis
+addpoll <choice1>,<choice2>,... <sentence>
+\description
+Allows you to add a poll in the list.
+\example
+> addpoll yes,no Mother is it just a waste of time?

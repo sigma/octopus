@@ -1,0 +1,8 @@
+\name
+lsports - display the opened listening ports
+\synopsis
+lsports
+\description
+Allows you to display the opened listening ports
+\see also
+close, open

@@ -1,0 +1,90 @@
+<db>
+ <users>
+  <Root>
+   <variables>
+    <variable name="away" infos="849:2" />
+    <variable name="bell" infos="850:2" />
+    <variable name="client" infos="849:0" />
+    <variable name="email" infos="817:0" />
+    <variable name="msg_display_count" infos="818:1" />
+    <variable name="name" infos="817:0" />
+    <variable name="password" infos="1330:0" />
+    <variable name="pollwall_display_count" infos="818:1" />
+    <variable name="wall_display_count" infos="818:1" />
+   </variables>
+   <public>
+    <internal>
+     <resident>
+      <global>
+       <clear>
+        <email>hodique@lifl.fr</email>
+        <name>Yann Hodique</name>
+       </clear>
+      </global>
+     </resident>
+    </internal>
+   </public>
+   <private>
+    <internal>
+     <resident>
+      <global>
+       <encrypted>
+        <password>frgWb4POkbY5c</password>
+       </encrypted>
+       <clear>
+        <wall_display_count>0</wall_display_count>
+        <msg_display_count>8</msg_display_count>
+        <pollwall_display_count>0</pollwall_display_count>
+       </clear>
+      </global>
+     </resident>
+    </internal>
+   </private>
+  </Root>
+  <Mtp>
+   <variables>
+    <variable name="away" infos="849:2" />
+    <variable name="bell" infos="850:2" />
+    <variable name="client" infos="849:0" />
+    <variable name="email" infos="817:0" />
+    <variable name="msg_display_count" infos="818:1" />
+    <variable name="name" infos="817:0" />
+    <variable name="password" infos="1330:0" />
+    <variable name="pollwall_display_count" infos="818:1" />
+    <variable name="wall_display_count" infos="818:1" />
+   </variables>
+   <public>
+    <internal>
+     <resident>
+      <global>
+       <clear>
+        <email>hodique@lifl.fr</email>
+        <name>Yann Hodique</name>
+       </clear>
+      </global>
+     </resident>
+    </internal>
+   </public>
+   <private>
+    <internal>
+     <resident>
+      <global>
+       <encrypted>
+        <password>frqDVWDbGYtfY</password>
+       </encrypted>
+       <clear>
+        <wall_display_count>0</wall_display_count>
+        <msg_display_count>8</msg_display_count>
+        <pollwall_display_count>0</pollwall_display_count>
+       </clear>
+      </global>
+     </resident>
+    </internal>
+   </private>
+  </Mtp>
+ </users>
+ <userlist>
+  <user>Root</user>
+  <user>Mtp</user>
+ </userlist>
+</db>

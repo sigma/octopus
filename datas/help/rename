@@ -1,0 +1,9 @@
+\name
+rename - rename a user
+\synopsis
+rename <old> <new>
+\description 
+Allows you to rename a user.
+\example
+> rename Sid Alfred
+You wanna kill me?! 

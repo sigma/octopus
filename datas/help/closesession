@@ -1,0 +1,8 @@
+\name
+closesession - close a session
+\synopsis
+closesession <id>
+\description
+Allows you to close a session.
+\see also
+lssessions
