@@ -1,4 +1,4 @@
-/*  Time-stamp: <16/03/2005 23:55:38 Yann Hodique>  */
+/*  Time-stamp: <18/03/2005 21:43:40 Yann Hodique>  */
 
 /**
  *  @file connection.cpp
@@ -17,6 +17,7 @@
 
 #include "connection.h"
 #include "serversocket.h"
+#include "clientsocket.h"
 
 PLUGIN_FACTORY(Connection);
 
@@ -59,23 +60,28 @@ QDateTime Connection::serverStartDateTime() const {
 }
 
 bool Connection::send(const QString & to, const QString & msg) {
-    ServerSocket* ssock = find(to);
-    return ssock->send(to,msg);
+    return find(to).send(manager()->prepostPlugin()->treatOutgoingMessage(to,msg).replace(QChar('\n'),"\r\n") + "\r\n");
 }
 
 void Connection::broadcast(const QString & msg) {
-    for(ServerList::ConstIterator it = servers.begin(); it != servers.end(); ++it)
-        (*it)->broadcast(msg);
+    QList<Path> l = users.values();
+    for(QList<Path>::Iterator it = l.begin(); it != l.end(); it++)
+        (*it).send(msg);
 }
 
 void Connection::broadcastOthers(const QString & except, const QString & msg) {
-    for(ServerList::ConstIterator it = servers.begin(); it != servers.end(); ++it)
-        (*it)->broadcastOthers(except, msg);
+    QList<Path> l = users.values();
+    l.removeAll(find(except));
+    for(QList<Path>::Iterator it = l.begin(); it != l.end(); it++)
+        (*it).send(msg);
 }
 
 void Connection::broadcastOthers(const QStringList & except, const QString & msg) {
-    for(ServerList::ConstIterator it = servers.begin(); it != servers.end(); ++it)
-        (*it)->broadcastOthers(except, msg);
+    QList<Path> l = users.values();
+    for(QStringList::ConstIterator it = except.begin(); it != except.end(); ++it)
+        l.removeAll(find(*it));
+    for(QList<Path>::Iterator it = l.begin(); it != l.end(); it++)
+        (*it).send(msg);
 }
 
 bool Connection::serverSend(const QString & to, const QString & msg) {
@@ -96,6 +102,7 @@ void Connection::serverBroadcastOthers(const QStringList &except, const QString 
 
 void Connection::launch(int port) {
     ServerSocket *ssock = new ServerSocket(this);
+    connect(ssock, SIGNAL(newConnection()), SLOT(treatIncoming()));
     ssock->listen(port);
     servers << ssock;
 }
@@ -104,6 +111,82 @@ QString Connection::serverSays(const QString& msg) const {
     return "<Mtp> " + msg;
 }
 
-ServerSocket * Connection::find(const QString& user) const {
+const Connection::Path Connection::find(const QString& user) const {
     return users[user];
+}
+
+bool Connection::Path::send(const QString& msg) const {
+    bool res = false;
+    for(ConstIterator it = begin(); it != end(); ++it) {
+        res = (*it)->write(msg.ascii()) || res;
+    }
+    return res;
+}
+
+void Connection::treatIncoming() {
+    ServerSocket* ssock = static_cast<ServerSocket*>(sender());
+    if(ssock) {
+        while(ssock->hasPendingConnections())
+            welcomeIncoming((ClientSocket *)ssock->nextPendingConnection());
+    }
+}
+
+void Connection::welcomeIncoming(ClientSocket* sock) {
+    sock->write(serverSays("Login: ").ascii());
+    connect(sock, SIGNAL(readyRead()), SLOT(authIncoming()));
+}
+
+void Connection::authIncoming() {
+    ClientSocket* sock = static_cast<ClientSocket*>(sender());
+
+    disconnect(sock, SIGNAL(readyRead()), this, SLOT(authIncoming()));
+    QString login = sock->readLineData();
+    octInfo(QString("Welcoming %1\n").arg(login));
+
+    sock->setLogin(login);
+
+    if(manager()->databasePlugin()->isRegisteredUser(login)) {
+        sock->write(serverSays("Password: ").ascii());
+        connect(sock, SIGNAL(readyRead()), SLOT(checkIncoming()));
+    } else
+        accept(sock);
+}
+
+void Connection::checkIncoming() {
+    ClientSocket* sock = static_cast<ClientSocket*>(sender());
+
+    disconnect(sock, SIGNAL(readyRead()), this, SLOT(checkIncoming()));
+    if(manager()->databasePlugin()->authUser(sock->getLogin(),sock->readLineData()))
+        accept(sock);
+    else
+        sock->close();
+}
+
+void Connection::accept(ClientSocket* sock) {
+    Path& p = users[sock->getLogin()];
+    p << sock;
+    connect(sock, SIGNAL(readyRead()), SLOT(processText()));
+
+    manager()->in(sock->getLogin());
+}
+
+void Connection::processText() {
+    ClientSocket* sock = static_cast<ClientSocket*>(sender());
+    while(sock->canReadLine())
+        processText(sock->getLogin(), sock->readLineData());
+}
+
+void Connection::processText(const QString& author, const QString& txt) {
+    octInfo(QString("Processing text from %1 : \"%2\"\n").arg(author).arg(txt));
+    if(!txt.isEmpty()) {
+        QString msg = txt;
+        msg = manager()->prepostPlugin()->treatIncomingMessage(author,msg);
+        if(!msg.isEmpty()) {
+            QStringList l = msg.split('\n',QString::SkipEmptyParts);
+            for(QStringList::ConstIterator it = l.begin(); it != l.end(); it++) {
+                octInfo(QString("Dispatching message \"%1\"\n").arg(txt));
+                manager()->dispatch(author, *it);
+            }
+        }
+    }
 }

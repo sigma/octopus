@@ -1,4 +1,4 @@
-/*  Time-stamp: <16/03/2005 23:57:14 Yann Hodique>  */
+/*  Time-stamp: <18/03/2005 19:53:04 Yann Hodique>  */
 
 /**
  *  @file serversocket.cpp
@@ -37,21 +37,5 @@ void ServerSocket::incomingConnection (int socketDescriptor) {
     sock->setSocketDescriptor(socketDescriptor);
 
     pending.enqueue(sock);
+    emit newConnection();
 }
-
-bool ServerSocket::send(const QString & // to
-                        , const QString & // msg
-                        ) {
-    return true;
-}
-
-void ServerSocket::broadcast(const QString & // msg
-                             ) {}
-
-void ServerSocket::broadcastOthers(const QString & // except
-                                   , const QString & // msg
-                                   ) {}
-
-void ServerSocket::broadcastOthers(const QStringList & // except
-                                   , const QString & // msg
-                                   ) {}

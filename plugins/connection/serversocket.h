@@ -1,4 +1,4 @@
-/*  Time-stamp: <16/03/2005 23:57:25 Yann Hodique>  */
+/*  Time-stamp: <18/03/2005 19:59:03 Yann Hodique>  */
 
 /**
  *  @file serversocket.h
@@ -35,11 +35,6 @@ public:
     virtual bool hasPendingConnections() const;
 
     virtual QTcpSocket * nextPendingConnection();
-
-    bool send(const QString & to, const QString & msg);
-    void broadcast(const QString & msg);
-    void broadcastOthers(const QString & except, const QString & msg);
-    void broadcastOthers(const QStringList & except, const QString & msg);
 
 protected:
     virtual void incomingConnection (int socketDescriptor);

@@ -1,4 +1,4 @@
-/*  Time-stamp: <16/03/2005 23:53:00 Yann Hodique>  */
+/*  Time-stamp: <18/03/2005 21:19:05 Yann Hodique>  */
 
 /**
  *  @file connection.h
@@ -25,6 +25,7 @@
 #include <QMap>
 
 class ServerSocket;
+class ClientSocket;
 
 class Connection : public ConnectionPlugin {
     Q_OBJECT
@@ -63,11 +64,26 @@ private:
     typedef QList<ServerSocket *> ServerList;
     ServerList servers;
 
-    typedef QMap<QString, ServerSocket*> UserMap;
+    class Path : public QList<ClientSocket*> {
+    public:
+        bool send(const QString& msg) const;
+    };
+
+    typedef QMap<QString, Path> UserMap;
     UserMap users;
 
     QString serverSays(const QString& msg) const;
-    ServerSocket * find(const QString& user) const;
+    const Path find(const QString& user) const;
+
+    void accept(ClientSocket*);
+    void welcomeIncoming(ClientSocket*);
+    void processText(const QString&, const QString&);
+
+private slots:
+    void treatIncoming();
+    void authIncoming();
+    void checkIncoming();
+    void processText();
 };
 
 #endif /* _CONNECTION_H_ */

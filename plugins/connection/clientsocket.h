@@ -1,4 +1,4 @@
-/*  Time-stamp: <16/03/2005 23:19:37 Yann Hodique>  */
+/*  Time-stamp: <18/03/2005 21:24:15 Yann Hodique>  */
 
 /**
  *  @file clientsocket.h
@@ -25,8 +25,15 @@ class ClientSocket : public QTcpSocket {
 
 public:
     ClientSocket(QObject *parent = 0);
-
     ~ClientSocket();
+
+    void setLogin(const QString& l) {login = l;}
+    QString getLogin() {return login;}
+
+    QString readLineData();
+
+private:
+    QString login;
 };	// end of class ClientSocket
 
 

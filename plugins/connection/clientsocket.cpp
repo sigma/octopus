@@ -1,4 +1,4 @@
-/*  Time-stamp: <16/03/2005 23:21:59 Yann Hodique>  */
+/*  Time-stamp: <18/03/2005 21:26:21 Yann Hodique>  */
 
 /**
  *  @file clientsocket.cpp
@@ -20,3 +20,13 @@
 ClientSocket::ClientSocket(QObject *parent) : QTcpSocket(parent) {}
 
 ClientSocket::~ClientSocket() {}
+
+QString ClientSocket::readLineData() {
+    QString res(readLine());
+    if(res.endsWith("\r\n"))
+        return res.left(res.size() - 2);
+    else if(res.endsWith("\n"))
+        return res.left(res.size() - 1);
+    else
+        return res;
+}
