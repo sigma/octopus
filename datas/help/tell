@@ -1,10 +1,14 @@
 \name
-tell - send a private message 
+tell - send a private message
 \synopsis
-tell <user> <message>
+tell <userlist> <message>
 \description
-Allows you to send a private message to a person exclusively.
+Allows you to send a private message to a person or a group of person exclusively.
 \example
 > tell franck the lunatic is on the grass
 * Franck will receive :
-Roots tells you: the lunatic is on the grass 
+Roots tells you: the lunatic is on the grass
+\example
+> tell david,nick,richard what about a new album?
+* David will receive :
+Roger tells you(CC: Nick,Richard): what about a new album?
