@@ -51,7 +51,8 @@ static const int Signal[] = {
 
 void exitServer() {
     signal_caught++;
-    pm->shutdownCmd("Root",QStringList("shutdown"));
+    QStringList list;
+    pm->shutdownCmd("Root",list);
 }
 
 static void SigHandler(int Sig) {

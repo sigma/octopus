@@ -111,6 +111,8 @@ void Vote::exportCommands() {
 }
 
 void Vote::addpollCmd(const QString &from, const QStringList& list) {
+    octAssert(list.size() == 2);
+
 	QStringList choiceList = list[0].split(",",QString::SkipEmptyParts);
 
 	Poll poll;
@@ -129,6 +131,8 @@ void Vote::addpollCmd(const QString &from, const QStringList& list) {
 }
 
 void Vote::closepollCmd(const QString &from, const QStringList &list) {
+    octAssert(list.size() == 1);
+
     uint id = list[0].toUInt();
 
     PollList::Iterator p;
@@ -164,7 +168,9 @@ void Vote::closepollCmd(const QString &from, const QStringList &list) {
     }
 }
 
-void Vote::lspollCmd(const QString &from, const QStringList&) {
+void Vote::lspollCmd(const QString &from, const QStringList& list) {
+    octAssert(list.size() == 0);
+
 	QString txt;
 	QMap<int,QString> poll_map;
 
@@ -185,6 +191,8 @@ void Vote::lspollCmd(const QString &from, const QStringList&) {
 }
 
 void Vote::voteCmd(const QString &from, const QStringList& list) {
+    octAssert(list.size() == 2);
+
 	uint id = list[0].toUInt();
 	QString choice = list[1].simplified();
 
@@ -227,7 +235,9 @@ void Vote::voteCmd(const QString &from, const QStringList& list) {
 	    manager()->connectionPlugin()->serverSend(from, "You cannot vote twice!");
 }
 
-void Vote::pollwallCmd(const QString &from, const QStringList&) {
+void Vote::pollwallCmd(const QString &from, const QStringList& list) {
+    octAssert(list.size() == 0);
+
 	int count = manager()->databasePlugin()->getValue(from, "pollwall_display_count").toInt();
 	if (!count)
 	    count = POLL_WALL_LINES;
