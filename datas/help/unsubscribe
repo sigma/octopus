@@ -1,0 +1,9 @@
+\name
+unsubscribe - unsubscribe from a list
+\synopsis
+unsubscribe <list>
+\description
+Remove yourself from the list of receivers for messages sent to the list
+> unsubscribe @all
+\see also
+showmsg, clearmsg, sendmsg, subscribe

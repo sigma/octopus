@@ -1,0 +1,9 @@
+\name
+subscribe - subscribe to a list
+\synopsis
+subscribe <list>
+\description
+Add yourself to the list of receivers for messages sent to the list
+> subscribe @all
+\see also
+showmsg, clearmsg, sendmsg, unsubscribe
