@@ -26,9 +26,10 @@
 #include "plugins.h"
 
 #include <list>
-#include <qmap.h>
-#include <qstringlist.h>
-#include <qregexp.h>
+
+#include <QMap>
+#include <QStringList>
+#include <QRegExp>
 
 #define DEFAULT_PORT 4000
 
