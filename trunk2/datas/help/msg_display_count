@@ -1,0 +1,8 @@
+\name
+msg_display_count
+\description
+This user private variable contains the maximum count of displayed messages when "showmsg" is invoked.
+If you set its value to 0, the displayed messages count will be the default value.
+It doesn't influence the true messages count.
+\see also
+wall_display_count, pollwall_display_count

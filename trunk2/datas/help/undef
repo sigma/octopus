@@ -1,0 +1,10 @@
+\name
+undef - undefine a property
+\synopsis
+undef [user.]<property>
+\description
+Allows you to undefine a user property.
+If no user is passed, then your own property is undefined.
+\example
+> undef icq
+You undef icq

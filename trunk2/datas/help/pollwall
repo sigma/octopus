@@ -1,0 +1,12 @@
+\name
+pollwall - Displays the poll wall
+\synopsis
+pollwall
+\description
+Allows you to display all closed polls.
+Its line number is defined in the user variable pollwall_display_count.
+\example
+> pollwall
+Poll wall :
+19/05/2003 22:39:16 Root: Choucroute sux, isn't it? [sure/no/dunno] : sure
+End of poll wall

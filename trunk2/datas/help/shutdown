@@ -1,0 +1,7 @@
+\name
+shutdown - shutdown the server
+\synopsis
+shutdown
+\description
+allows you to shutdown the server and send warning to anyone connected.
+

@@ -1,0 +1,9 @@
+\name
+delgroup - remove a user from a group
+\synopsis
+delgroup <user> <groups>
+\description
+Allows you to remove a user from a group.
+\example
+> delgroup sid Wall
+

@@ -1,0 +1,12 @@
+\name
+open - open a listening port
+\synopsis
+open <port>
+\description
+Allows you to open a new listening port.
+\example
+> open 3000
+Port 3000 is now opened
+\see also
+close, lsports
+

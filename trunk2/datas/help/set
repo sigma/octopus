@@ -1,0 +1,10 @@
+\name
+set - set a property value
+\synopsis
+set [user.]<property> <value>
+\description
+Allows you to change a user property value.
+If no user is passed then your own property value is changed.
+\example
+> set Sid.email sid@pink.org
+You set Sid.email to "sid@pink.org"

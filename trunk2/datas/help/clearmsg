@@ -1,0 +1,10 @@
+\name
+clearmsg - clear persistent messages
+\synopsis
+clearmsg [<first> [<last>]]
+\description
+Allows you to clear one or several messages.
+\example
+> clearmsg 1 4
+\see also
+showmsg, sendmsg

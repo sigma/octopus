@@ -1,0 +1,13 @@
+\name
+alias - get the alias list or define an alias
+\synopsis
+alias [<cmd> <msg>]
+\description
+Allows you to get your alias definitions list or to define a new alias.
+\example
+> alias smile emote smile happily
+You alias "smile" to "emote smiles happily"
+> smile
+*Root smiles happily*
+\see also
+unalias
