@@ -29,6 +29,8 @@ public:
     void showmsgCmd(const QString&, const QStringList&);
     void sendmsgCmd(const QString&, const QStringList&);
     void clearmsgCmd(const QString&, const QStringList&);
+    void subscribeCmd(const QString&, const QStringList&);
+    void unsubscribeCmd(const QString&, const QStringList&);
 
     void exportCommands();
     void incomingUser(const QString&);
@@ -38,6 +40,8 @@ public:
 
 private:
     bool writeMsg(const QString&, const QString&);
+    void sendmsgUser(const QString& from, const QStringList& list, bool quiet = false);
+    QStringList getUsers(const QString& listname);
 };
 
 #endif

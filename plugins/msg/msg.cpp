@@ -48,7 +48,7 @@ void Msg::showmsgCmd(const QString& from, const QStringList& list) {
 
 	    QString txt("");
 	    for (;count < list.count();count++) {
-            txt += list[count];
+            txt += list[count].ascii();
             if (count < list.count() - 1)
                 txt += "\n";
 	    }
@@ -61,18 +61,82 @@ void Msg::showmsgCmd(const QString& from, const QStringList& list) {
     fin.close();
 }
 
-void Msg::sendmsgCmd(const QString& from, const QStringList& list) {
+void Msg::sendmsgUser(const QString& from, const QStringList& list, bool quiet) {
     QString txt1(from + " sends a message to you: " + list[1]);
     QString message(QDate::currentDate().toString("dd/MM/yyyy ") + QTime::currentTime().toString("hh:mm:ss ") + from + " : " + list[1]);
     QString to(manager()->databasePlugin()->canonicalName(list[0]));
     if((manager()->connectionPlugin()->serverSend(to,txt1) || manager()->databasePlugin()->isRegisteredUser(to))
-       && writeMsg(to,message)) {
+       && writeMsg(to,message) && !quiet) {
         QString txt2("You send a message to " + to + ": " + list[1]);
         manager()->connectionPlugin()->serverSend(from,txt2);
-    } else {
+    } else if(!quiet) {
 		QString error("Invalid user");
 		manager()->connectionPlugin()->serverSend(from,error);
     }
+}
+
+void Msg::sendmsgCmd(const QString& from, const QStringList& list) {
+    if(list[0].startsWith("@")) {
+        QStringList users = getUsers(list[0]);
+        QStringList newlist(list);
+        newlist[1] = "[" + list[0] + "] " + list[1];
+        for(QStringList::ConstIterator it = users.begin(); it != users.end(); ++it) {
+            newlist[0] = *it;
+            sendmsgUser(from,newlist,true);
+        }
+        QString txt("You send a message to " + list[0] + ": " + list[1]);
+        manager()->connectionPlugin()->serverSend(from,txt);
+    } else
+        sendmsgUser(from,list);
+}
+
+QStringList Msg::getUsers(const QString& listname) {
+    QStringList l;
+
+    QFile f(manager()->dataDir() + "/msg/" + listname);
+    if (!f.open(QIODevice::ReadOnly)) {
+        std::cerr << "Could not read message file" << std::endl;
+        return l;
+    }
+
+    QTextStream stream(&f);
+    QString line;
+    while((line = stream.readLine()) != QString::null) {
+        l << line;
+    }
+    f.close();
+
+    return l;
+}
+
+void Msg::subscribeCmd(const QString& from, const QStringList& list) {
+    writeMsg(list[0],from);
+    QString txt("You subscribed to list " + list[0]);
+    manager()->connectionPlugin()->serverSend(from,txt);
+}
+
+void Msg::unsubscribeCmd(const QString& from, const QStringList& list) {
+    QString listname = list[0];
+
+    QStringList l = getUsers(listname);
+    l.removeAll(from);
+
+    QFile f(manager()->dataDir() + "/msg/" + listname);
+    if (l.count()) {
+        if (!f.open(QIODevice::WriteOnly)) {
+            std::cerr << "Could not write message file." << std::endl;
+            return;
+        }
+
+        QTextStream stream2(&f);
+        for(QStringList::Iterator it = l.begin(); it != l.end(); ++it)
+            stream2 << (*it + "\n");
+        f.close();
+    } else
+        f.remove();
+
+    QString txt("You unsubscribed from list " + listname);
+    manager()->connectionPlugin()->serverSend(from,txt);
 }
 
 void Msg::clearmsgCmd(const QString& from, const QStringList& list) {
@@ -138,8 +202,10 @@ void Msg::clearmsgCmd(const QString& from, const QStringList& list) {
 
 void Msg::exportCommands() {
     registerCommand("showmsg",&Msg::showmsgCmd,"[{all}]","Show current messages");
-    registerCommand("sendmsg",&Msg::sendmsgCmd,"{<login>} {<sentence>}","Send a message to a user","Msg");
+    registerCommand("sendmsg",&Msg::sendmsgCmd,"{@?<login>} {<sentence>}","Send a message to a user or list","Msg");
     registerCommand("clearmsg",&Msg::clearmsgCmd,"[{<int>}[ {<int>}]]","Clear some messages");
+    registerCommand("subscribe",&Msg::subscribeCmd,"{@<login>}","Subscribe to a list");
+    registerCommand("unsubscribe",&Msg::unsubscribeCmd,"{@<login>}","Unsubscribe to a list");
 }
 
 void Msg::incomingUser(const QString& login) {
@@ -163,11 +229,11 @@ void Msg::renamedUser(const QString& old_login, const QString& new_login) {
     QFile fin(manager()->dataDir() + "/msg/" + old_login);
     QFile fout(manager()->dataDir() + "/msg/" + new_login);
     if(fin.open(QIODevice::ReadOnly)) {
-	if(fout.open(QIODevice::WriteOnly)) {
-	    fout.write(fin.readAll());
-	    fout.close();
-	}
-	fin.close();
+        if(fout.open(QIODevice::WriteOnly)) {
+            fout.write(fin.readAll());
+            fout.close();
+        }
+        fin.close();
     }
     fin.remove();
 }
