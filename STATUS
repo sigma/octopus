@@ -9,17 +9,17 @@ m => modified
 +	addgroup        addgroup <user> <group>
 +	addpoll		addpoll <sentence> [\<choice>]..[\<choice>]
 x	alias		alias [<alias> [<command>]]
-	Beep		Beep <User>
-	Birthday	Birthday [<User>]
+-	Beep		Beep <User>
+-	Birthday	Birthday [<User>]
 -	Bump		Bump <User> [<Reason>]
 .	channels	channels
 +	chpasswd	chpasswd <password>
--	Clear		Clear 
+-	Clear		Clear
 x	clearMsg        clearMsg [<start> [<stop>]]
 +	close		close <port>
 +	closepoll       closepoll <id>
 +	closesession	closession <id>
-x	commands	commands 
+x	commands	commands
 -	Date		Date
 +	define		define {string|int|bool} [user.]{public|private}.{resident|transient}.<variable>
 +	delgroup	delgroup <user> <group>
@@ -27,14 +27,14 @@ x	emote		emote <sentence>
 x	force		force <user> <command>
 x	Finger		Finger [<User>]
 x	help		help [<Topic>]
-.	get		get [<user>.]<variable>
+x	get		get [<user>.]<variable>
 m	groups		groups [user]
 x	join		join <Channel>
 x	kick		kick <user> [<reason>]
 x	kill		kill <User>
-x	history		history 
-	Invite		Invite <User>
-x	leave		leave 
+x	history		history
+o	Invite		Invite <User>
+x	leave		leave
 +	lsmod		lsmod
 +	lspoll		lspoll
 +	lsports		lsports
@@ -46,16 +46,18 @@ x	quit		quit [<Reason>]
 x	register	register <Password>
 -	Reply		Reply <Message>
 +	rmmod		rmmod <plugin>
-.	set		set [<user>.]<variable> <value>
+x	set		set [<user>.]<variable> <value>
 x	senddata	senddata <user> <message>
 x	sendmsg		sendmsg <user> <message>
-x	showmsg		showmsg 
+x	showmsg		showmsg
 .	shutdown	shutdown [Now]
 x	shout		shout <message>
++       subscribe       subscribe <list>
 o	Switch		Switch [<User>|<Channel>] <Variable>
 x	tell		tell <user> <message>
-+	undef		undef [<user>.]<variable>
 x	unalias		unalias <alias>
++	undef		undef [<user>.]<variable>
++       unsubscribe     unsubscribe <list>
 -	UpTime		UpTime [<User>]
 .	users		users [<Option>]
 +	vote		vote <poll id> <choice>
