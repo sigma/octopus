@@ -278,7 +278,10 @@ void PluginManager::renamed(const QString& old_login, const QString& new_login) 
     }
 }
 
-void PluginManager::rebootCmd(const QString&, const QStringList&) {
+void PluginManager::rebootCmd(const QString&, const QStringList& list) {
+    octAssert(list.size() == 0);
+    octInfo("System rebooting now\n");
+
     QString txt("System rebooting now");
     connectionPlugin()->serverBroadcast(txt);
 
@@ -289,8 +292,10 @@ void PluginManager::rebootCmd(const QString&, const QStringList&) {
     slotReboot();
 }
 
-void PluginManager::shutdownCmd(const QString&, const QStringList&) {
+void PluginManager::shutdownCmd(const QString&, const QStringList& list) {
+    octAssert(list.size() == 0);
     octInfo("System halting now\n");
+
     QString txt("System halting now");
     connectionPlugin()->serverBroadcast(txt);
 
@@ -303,7 +308,9 @@ void PluginManager::shutdownCmd(const QString&, const QStringList&) {
 //            QTimer::singleShot(1000,this,SLOT(deleteLater()));
 }
 
-void PluginManager::commandsCmd(const QString& from, const QStringList&) {
+void PluginManager::commandsCmd(const QString& from, const QStringList& list) {
+    octAssert(list.size() == 0);
+
     QString message;
     connectionPlugin()->serverSend(from, "Commands:");
     if (this->desc_map.count()) {
@@ -333,6 +340,8 @@ void PluginManager::commandsCmd(const QString& from, const QStringList&) {
     \fn PluginManager::modprobeCmd(const QString& from, const QString& msg)
  */
 void PluginManager::modprobeCmd(const QString& from, const QStringList& list) {
+    octAssert(list.size() == 1);
+
     QString txt;
     QString error;
     if(loadPluginFile(dataDir() + "/plugins/" + list[0], &error)) {
@@ -346,7 +355,9 @@ void PluginManager::modprobeCmd(const QString& from, const QStringList& list) {
 /*!
     \fn PluginManager::lsmodCmd(const QString& from, const QString& msg)
  */
-void PluginManager::lsmodCmd(const QString& from, const QStringList&) {
+void PluginManager::lsmodCmd(const QString& from, const QStringList& list) {
+    octAssert(list.size() == 0);
+
     QString txt;
     connectionPlugin()->serverSend(from, "Active plugins :");
     for(std::list<Data>::iterator it = active.begin(); it != active.end(); ++it) {
@@ -363,6 +374,8 @@ void PluginManager::lsmodCmd(const QString& from, const QStringList&) {
     \fn PluginManager::rmmodCmd(const QString& from, const QString& msg)
  */
 void PluginManager::rmmodCmd(const QString& from, const QStringList& list) {
+    octAssert(list.size() == 1);
+
     for(std::list<Data>::iterator it = active.begin(); it != active.end(); ++it) {
         if(list[0] == (*it).plugin->pluginName()) {
             Plugin* plug = (*it).plugin;
