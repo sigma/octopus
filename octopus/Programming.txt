@@ -1,0 +1,43 @@
+Octopus HowTo programming
+-------------------------
+
+The following is just to uniformize the source code. It's not a obligation but a wish.
+
+
+PREPROCESSOR
+------------
+
+Standard includes are before proprietary includes as in this exemple :
+
+// Standard 
+#include <iostream>
+
+// Proprietary
+#include "toto.h"
+
+Comments are not necessary.
+
+
+INDENTATION
+-----------
+
+blocks:
+
+if () {
+}
+
+void test() {
+}
+
+
+AVOID MULTIPLE HEADER INCLUSION
+-------------------------------
+
+for a file named SourceFile.h, use :
+
+#ifndef SOURCEFILE_H
+#define SOURCEFILE_H
+
+all the content of the header comes here
+
+#endif // SOURCEFILE_H

@@ -1,0 +1,9 @@
+INCLUDES = -I$(top_srcdir)/interfaces
+lib_LTLIBRARIES =  libtest.la
+libtest_la_LIBADD = $(top_builddir)/interfaces/libinterfaces.la
+libtest_la_SOURCES = testplugin.cpp testplugin.h
+AM_CFLAGS = 
+AM_CXXFLAGS = -Wall -Werror
+AM_FFLAGS = 
+libtest_la_LDFLAGS = -module
+SUBDIRS = 
