@@ -37,6 +37,10 @@ namespace octopus {
             return (Octstream&)(*((std::ostringstream*)this) << std::string(msg));
         }
 
+        Octstream &operator << (int i) {
+            return (Octstream&)(*((std::ostringstream*)this) << i);
+        }
+
     };
 
     class Octlog {

@@ -35,10 +35,10 @@
 
 #	ifdef WIN32
 #		define OCT_BREAK {__asm int 3}
-#		define octErrorOutput(T,E,F,L,M) octInfo((F) << "(" << (L) << ") : " << (T) << "(" << (E) << ") in " << (M) << std::endl);
+#		define octErrorOutput(T,E,F,L,M) octInfo((F) << "(" << (L) << ") : " << (T) << "(" << (E) << ") in " << (M) << "\n");
 #	else // WIN32
 #		define OCT_BREAK __asm__("int $3")
-#		define octErrorOutput(T,E,F,L,M) octInfo((F) << ":" << (L) << ": error: " << (T) << ": \"" << (E) << "\" in \"" << (M) << "\"" << std::endl);
+#		define octErrorOutput(T,E,F,L,M) octInfo((F) << ":" << (L) << ": error: " << (T) << ": \"" << (E) << "\" in \"" << (M) << "\"\n");
 #	endif // WIN32
 
 #	ifdef OCT_FATAL_ASSERT
