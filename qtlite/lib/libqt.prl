@@ -1,6 +1,0 @@
-QMAKE_PRL_BUILD_DIR = /home/yann/Projects/qtlite/src
-QMAKE_PRO_INPUT = qt.pro
-QMAKE_PRL_TARGET = libqt.so.3.2.3
-QMAKE_PRL_DEFINES = QT_SHARED QT_NO_DEBUG
-QMAKE_PRL_CONFIG = qt warn_on release incremental link_prl nocrosscompiler minimal-config small-config medium-config large-config full-config tools kernel network xml release dll largefile stl png no-gif zlib nis cups bigcodecs x11sm xkb dylib create_prl link_prl qt warn_on depend_includepath qmake_cache create_libtool create_pc moc x11lib
-QMAKE_PRL_VERSION = 3.2.3
