@@ -3,8 +3,12 @@
 # Subdir relative project main directory: ./plugins/connect
 # Target is a library:
 
-SOURCES += connection.cpp
-HEADERS += connection.h
+SOURCES += connection.cpp \
+	   serversocket.cpp \
+	   clientsocket.cpp
+HEADERS += connection.h \
+	   serversocket.h \
+	   clientsocket.h
 TEMPLATE = lib
 CONFIG += release \
           warn_on \

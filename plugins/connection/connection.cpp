@@ -1,4 +1,4 @@
-/*  Time-stamp: <16/03/2005 22:47:35 Yann Hodique>  */
+/*  Time-stamp: <16/03/2005 23:55:38 Yann Hodique>  */
 
 /**
  *  @file connection.cpp
@@ -16,6 +16,7 @@
  ************************************************************************/
 
 #include "connection.h"
+#include "serversocket.h"
 
 PLUGIN_FACTORY(Connection);
 
@@ -57,39 +58,52 @@ QDateTime Connection::serverStartDateTime() const {
     return QDateTime::currentDateTime();
 }
 
-bool Connection::send(const QString & // to
-                      , const QString & // msg
-                      ) {
-    return true;
+bool Connection::send(const QString & to, const QString & msg) {
+    ServerSocket* ssock = find(to);
+    return ssock->send(to,msg);
 }
 
-void Connection::broadcastOthers(const QString & // except
-                                 , const QString & // msg
-                                 ) {}
-
-void Connection::broadcastOthers(const QStringList & // except
-                                 , const QString & // msg
-                                 ) {}
-
-void Connection::broadcast(const QString & // msg
-                           ) {}
-
-bool Connection::serverSend(const QString & // to
-                            , const QString & // msg
-                            ) {
-    return true;
+void Connection::broadcast(const QString & msg) {
+    for(ServerList::ConstIterator it = servers.begin(); it != servers.end(); ++it)
+        (*it)->broadcast(msg);
 }
 
-void Connection::serverBroadcastOthers(const QString & // except
-                                       , const QString & // msg
-                                       ) {}
+void Connection::broadcastOthers(const QString & except, const QString & msg) {
+    for(ServerList::ConstIterator it = servers.begin(); it != servers.end(); ++it)
+        (*it)->broadcastOthers(except, msg);
+}
 
-void Connection::serverBroadcastOthers(const QStringList & // except
-                                       , const QString & // msg
-                                       ) {}
+void Connection::broadcastOthers(const QStringList & except, const QString & msg) {
+    for(ServerList::ConstIterator it = servers.begin(); it != servers.end(); ++it)
+        (*it)->broadcastOthers(except, msg);
+}
 
-void Connection::serverBroadcast(const QString & // msg
-                                 ) {}
+bool Connection::serverSend(const QString & to, const QString & msg) {
+    return send(to, serverSays(msg));
+}
 
-void Connection::launch(int // port
-                        ) {}
+void Connection::serverBroadcast(const QString &msg) {
+    broadcast(serverSays(msg));
+}
+
+void Connection::serverBroadcastOthers(const QString & except, const QString & msg) {
+    broadcastOthers(except, serverSays(msg));
+}
+
+void Connection::serverBroadcastOthers(const QStringList &except, const QString &msg) {
+    broadcastOthers(except, serverSays(msg));
+}
+
+void Connection::launch(int port) {
+    ServerSocket *ssock = new ServerSocket(this);
+    ssock->listen(port);
+    servers << ssock;
+}
+
+QString Connection::serverSays(const QString& msg) const {
+    return "<Mtp> " + msg;
+}
+
+ServerSocket * Connection::find(const QString& user) const {
+    return users[user];
+}
