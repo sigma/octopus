@@ -38,12 +38,12 @@
 #		define octErrorOutput(T,E,F,L,M) octInfo((F) << "(" << (L) << ") : " << (T) << "(" << (E) << ") in " << (M) << "\n");
 #       define octWarningOutput(M)
 #	else // WIN32
-#		define OCT_BREAK __asm__("int $3")
+#		define OCT_BREAK __asm__ __volatile__ ("int $3")
 #		define octErrorOutput(T,E,F,L,M) octInfo((F) << ":" << (L) << ": error: " << (T) << ": \"" << (E) << "\" in \"" << (M) << "\"\n");
 #		define octWarningOutput(M) octInfo(__FILE__ << ":" << __LINE__ << ": warning: " << (M) << " in \"" << (__FUNCSIG__) << "\"\n");
 #	endif // WIN32
 
-#	ifdef OCT_FATAL_ASSERT
+#	ifdef OCT_BREAK_ASSERT
 #		define octAssert(x) {if(!(x)) {octErrorOutput("ASSERT",#x,__FILE__,__LINE__,__FUNCSIG__); OCT_BREAK;}}
 #	else
 #		define octAssert(x) {if(!(x)) {octErrorOutput("ASSERT",#x,__FILE__,__LINE__,__FUNCSIG__);}}
