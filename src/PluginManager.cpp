@@ -450,7 +450,7 @@ void PluginManager::buildRegexp(ComScheme* sch) {
             index++;
         }
     }
-    std::cout << re.ascii() << std::endl;
+//    std::cout << re.ascii() << std::endl;
     sch->regexp = QRegExp(" *" + re + " *");
 //    cerr << "    Regexp = \"" << " *" + re + " *" << "\"" << std::endl;
 //    cerr << "    Positions =";
