@@ -107,7 +107,7 @@ void Connect::renamedUser(const QString& old_login, const QString& new_login) {
 bool Connect::loadHistory() {
     QFile fin(manager()->dataDir() + "/history");
     if (!fin.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read history file" << std::endl;
+        octInfo("Could not read history file\n");
         return false;
     }
 
@@ -132,7 +132,7 @@ bool Connect::loadHistory() {
 void Connect::addToHistory(const QString& msg) {
     QFile fout(manager()->dataDir() + "/history");
     if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
-        std::cerr << "Could not write the history file." << std::endl;
+        octInfo("Could not write the history file.\n");
         return;
     }
 
@@ -532,7 +532,7 @@ void Connect::accept(const QString& login, ClientSocket* socket) {
 void Connect::sendLogo(ClientSocket* s) {
     QFile fin(manager()->dataDir() + "/logo");
     if (!fin.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read logo file" << std::endl;
+        octInfo("Could not read logo file\n");
         return;
     }
 

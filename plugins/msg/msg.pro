@@ -18,3 +18,7 @@ INCLUDEPATH = ../../interfaces
 LIBS += ../../interfaces/libinterfaces.a
 TARGETDEPS += ../../interfaces/libinterfaces.a
 QT -= gui
+
+debug {
+	DEFINES += OCT_DEBUG
+}

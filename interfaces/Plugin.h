@@ -63,7 +63,7 @@
         QMap<int,cl_com>::Iterator it;                                  \
         if((it = cl_map.find(id)) != cl_map.end())                      \
             (this->*(*it))(from,args);                                  \
-        else  std::cerr << "Unknown command" << std::endl;              \
+        else  octInfo("Unknown command\n");                             \
     }                                                                   \
     const QString pluginName() const {                                  \
         return #cl;                                                     \
@@ -76,6 +76,8 @@
 #include <QString>
 #include <QObject>
 #include <QDir>
+
+#include "debug.h"
 
 class PluginManagerInterface;
 
@@ -91,6 +93,7 @@ public:
      *
      */
     Plugin(PluginManagerInterface* parent=0) : QObject((QObject*)parent) {
+        octopus::Octlog::getInstance().addStream(&std::cerr);
         mng = parent;
     }
 

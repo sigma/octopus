@@ -24,3 +24,7 @@ TARGETDEPS += ../../interfaces/libinterfaces.a
 
 QT -= gui
 QT += network compat
+
+debug {
+	DEFINES += OCT_DEBUG
+}

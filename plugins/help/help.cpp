@@ -55,7 +55,7 @@ void Help::helpCmd(const QString& from, const QStringList& list) {
 void Help::incomingUser(const QString& login) {
     QFile fin(manager()->dataDir() + "/helpmsg");
     if (!fin.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read helpmsg file" << std::endl;
+        octInfo("Could not read helpmsg file\n");
         return;
     } else {
         QTextStream stream(&fin);

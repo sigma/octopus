@@ -32,7 +32,7 @@ Wall::~Wall() {}
 bool Wall::loadWall() {
     QFile fin(manager()->dataDir() + "/wall");
     if (!fin.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read wall file" << std::endl;
+        octInfo("Could not read wall file\n");
         return false;
     }
 
@@ -57,7 +57,7 @@ bool Wall::loadWall() {
 void Wall::addToWall(const QString& msg) {
     QFile fout(manager()->dataDir() + "/wall");
     if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
-        std::cerr << "Could not write the wall file." << std::endl;
+        octInfo("Could not write the wall file.\n");
         return;
     }
 
@@ -111,7 +111,7 @@ void Wall::modwallCmd(const QString &from, const QStringList &list) {
     // Read the current wall and store it in a list
     QFile fwall(manager()->dataDir() + "/wall");
     if (!fwall.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read wall file" << std::endl;
+        octInfo("Could not read wall file\n");
         return;
     }
     QTextStream stream(&fwall);
@@ -148,7 +148,7 @@ void Wall::modwallCmd(const QString &from, const QStringList &list) {
     }
     QFile fout(manager()->dataDir() + "/wall");
     if (!fout.open(QIODevice::WriteOnly)) {
-        std::cerr << "Could not write wall file" << std::endl;
+        octInfo("Could not write wall file\n");
         return;
     }
 

@@ -34,6 +34,7 @@
 #include <qtextstream.h>
 
 #include "clientsocket.h"
+#include "debug.h"
 
  ClientSocket::ClientSocket( int sock, QObject *parent, const char *name ) :
          Q3Socket( parent, name ) {
@@ -47,7 +48,7 @@
  }
 
  ClientSocket::~ClientSocket() {
-     std::cerr << "~ClientSocket()" << std::endl;
+     octInfo("~ClientSocket()\n");
  }
 
  void ClientSocket::readClient() {

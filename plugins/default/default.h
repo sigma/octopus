@@ -54,7 +54,7 @@ public:
 private:
     QMap<QString,Channel> channels;
 
-    const QString& findChannel(const QString & user);
+    QString findChannel(const QString & user) const;
     QString formatIdle(const QDateTime &connectedFor);
 };
 

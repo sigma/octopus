@@ -95,7 +95,7 @@ void PrePost::loadAlias(const QString& login) {
 void PrePost::storeAlias(const QString& login) {
     QFile fout(manager()->dataDir() + "/alias/" + login);
     if( !fout.open(QIODevice::WriteOnly)) {
-        std::cerr << "Could not write alias file." << std::endl;
+        octInfo("Could not write alias file.\n");
         return;
     }
 
@@ -253,7 +253,6 @@ QString PrePost::expandAliases(const QString& from, const QString& msg) {
                 }
             }
             res += tmp;
-            //	    cerr << "Alias expanded to " << res << endl;
             return res;
         }
     }

@@ -48,7 +48,7 @@ void Msg::showmsgCmd(const QString& from, const QStringList& list) {
 
 	    QString txt("");
 	    for (;count < list.count();count++) {
-            txt += list[count].ascii();
+            txt += list[count];
             if (count < list.count() - 1)
                 txt += "\n";
 	    }
@@ -95,7 +95,7 @@ QStringList Msg::getUsers(const QString& listname) {
 
     QFile f(manager()->dataDir() + "/msg/" + listname);
     if (!f.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read message file" << std::endl;
+        octInfo("Could not read message file\n");
         return l;
     }
 
@@ -124,7 +124,7 @@ void Msg::unsubscribeCmd(const QString& from, const QStringList& list) {
     QFile f(manager()->dataDir() + "/msg/" + listname);
     if (l.count()) {
         if (!f.open(QIODevice::WriteOnly)) {
-            std::cerr << "Could not write message file." << std::endl;
+            octInfo("Could not write message file.\n");
             return;
         }
 
@@ -157,7 +157,7 @@ void Msg::clearmsgCmd(const QString& from, const QStringList& list) {
 
 	    QFile f(manager()->dataDir() + "/msg/" + from);
 	    if (!f.open(QIODevice::ReadOnly)) {
-            std::cerr << "Could not read message file" << std::endl;
+            octInfo("Could not read message file\n");
             return;
 	    }
 
@@ -178,7 +178,7 @@ void Msg::clearmsgCmd(const QString& from, const QStringList& list) {
 
 	    if (l.count()) {
             if (!f.open(QIODevice::WriteOnly)) {
-                std::cerr << "Could not write message file." << std::endl;
+                octInfo("Could not write message file.\n");
                 return;
             }
 
@@ -241,7 +241,7 @@ void Msg::renamedUser(const QString& old_login, const QString& new_login) {
 bool Msg::writeMsg(const QString& login, const QString& msg) {
     QFile fout(manager()->dataDir() + "/msg/" + login);
     if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
-        std::cerr << "Could not write message file." << std::endl;
+        octInfo("Could not write message file.\n");
         return false;
     }
 

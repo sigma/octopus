@@ -33,7 +33,7 @@ Default::Default(PluginManagerInterface* parent) : DefaultPlugin(parent) {
     // Load the default topic
     QFile file(manager()->dataDir() + "/topic/" + DEFAULT_CHANNEL);
     if (!file.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read topic file" << std::endl;
+        octInfo("Could not read topic file\n");
     } else {
 	QTextStream stream(&file);
 	QString line;
@@ -255,8 +255,8 @@ void Default::topicCmd(const QString& from, const QStringList& list) {
     }
 }
 
-const QString& Default::findChannel(const QString & user) {
-    for(QMap<QString,Channel>::Iterator it = channels.begin(); it != channels.end(); ++it) {
+QString Default::findChannel(const QString & user) const {
+    for(QMap<QString,Channel>::ConstIterator it = channels.begin(); it != channels.end(); ++it) {
         if((*it).users.indexOf(user) != -1) {
             return it.key();
         }

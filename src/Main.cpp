@@ -36,6 +36,8 @@
 #include "DefaultPlugin.h"
 #include "PrePostPlugin.h"
 
+#include "debug.h"
+
 using namespace std;
 
 PluginManager* pm;
@@ -91,6 +93,8 @@ int main(int argc, char *argv[]) {
     bool daemonize = false;
     int c;
 
+    octopus::Octlog::getInstance().addStream(&std::cerr);
+
     while (1) {
         int option_index = 0;
         static struct option long_options[] = {
@@ -111,35 +115,35 @@ int main(int argc, char *argv[]) {
             break;
         switch (c) {
             case 'p':
-                cerr << "Setting port to " << argv[optind-1] << endl;
+                octInfo(QString("Setting port to %1\n").arg(argv[optind-1]));
                 pm->addConnectionPort(atoi(argv[optind-1]));
                 break;
             case 'l':
-                cerr << "Loading " << argv[optind-1] << endl;
+                octInfo(QString("Loading %1\n").arg(argv[optind-1]));
                 pm->addPluginFile(argv[optind-1]);
                 break;
             case 'c':
-                cerr << "Loading " << argv[optind-1] << endl;
+                octInfo(QString("Loading %1\n").arg(argv[optind-1]));
                 pm->setConnectionPluginFile(argv[optind-1]);
                 break;
             case 'x':
-                cerr << "Loading " << argv[optind-1] << endl;
+                octInfo(QString("Loading %1\n").arg(argv[optind-1]));
                 pm->setDefaultPluginFile(argv[optind-1]);
                 break;
             case 'd':
-                cerr << "Loading " << argv[optind-1] << endl;
+                octInfo(QString("Loading %1\n").arg(argv[optind-1]));
                 pm->setDatabasePluginFile(argv[optind-1]);
                 break;
             case 't':
-                cerr << "Loading " << argv[optind-1] << endl;
+                octInfo(QString("Loading %1\n").arg(argv[optind-1]));
                 pm->setPrePostPluginFile(argv[optind-1]);
                 break;
             case 'g':
-                cerr << "Loading " << argv[optind-1] << endl;
+                octInfo(QString("Loading %1\n").arg(argv[optind-1]));
                 pm->setLogPluginFile(argv[optind-1]);
                 break;
             case 'r':
-                cerr << "Setting directory to " << argv[optind-1] << endl;
+                octInfo(QString("Setting directory to %1\n").arg(argv[optind-1]));
                 pm->setDataDir(argv[optind-1]);
                 break;
             case 'h':
@@ -148,21 +152,21 @@ int main(int argc, char *argv[]) {
             case '?':
                 break;
             default:
-                cerr << "?? Unrecognised character ??" << endl;
+                octInfo("?? Unrecognised character ??\n");
         }
     }
 
     if(!pm->boot()) {
         if(!pm->connectionPlugin())
-            cerr << "No connection plugin set!" << endl;
+            octInfo("No connection plugin set!\n");
         if(!pm->defaultPlugin())
-            cerr << "No default plugin set!" << endl;
+            octInfo("No default plugin set!\n");
         if(!pm->databasePlugin())
-            cerr << "No database plugin set!" << endl;
+            octInfo("No database plugin set!\n")
         if(!pm->prepostPlugin())
-            cerr << "No prepost plugin set!" << endl;
+            octInfo("No prepost plugin set!\n");
         if(!pm->logPlugin())
-            cerr << "No log plugin set!" << endl;
+            octInfo("No log plugin set!\n");
         return EXIT_FAILURE;
     }
 

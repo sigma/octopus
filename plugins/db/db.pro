@@ -24,3 +24,7 @@ TARGETDEPS += ../../interfaces/libinterfaces.a
 
 QT += xml
 QT -= gui
+
+debug {
+	DEFINES += OCT_DEBUG
+}

@@ -21,6 +21,7 @@
 #include <qstringlist.h>
 
 #include "tell.h"
+#include "debug.h"
 
 PLUGIN_FACTORY(Tell);
 
@@ -30,6 +31,8 @@ void Tell::exportCommands() {
 }
 
 void Tell::tellCmd(const QString& from, const QStringList& list) {
+    octAssert(list.count() == 2);
+
     QStringList tmp = list[0].split(",",QString::SkipEmptyParts);
     QStringList dest, ok, ko;
     for(QStringList::Iterator it = tmp.begin(); it != tmp.end(); ++it)

@@ -32,7 +32,7 @@ Vote::~Vote() {}
 bool Vote::loadPolls() {
     QFile fin(manager()->dataDir() + "/polls");
     if (!fin.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read polls file" << std::endl;
+        octInfo("Could not read polls file\n");
         return false;
     }
 
@@ -75,7 +75,7 @@ bool Vote::loadPolls() {
 bool Vote::savePolls() {
     QFile fout(manager()->dataDir() + "/polls");
     if (!fout.open(QIODevice::WriteOnly)) {
-        std::cerr << "Could not write polls file" << std::endl;
+        octInfo("Could not write polls file\n");
         return false;
     }
 
@@ -325,7 +325,7 @@ void Vote::addToPollWall(Poll &poll) {
     QFile fout(manager()->dataDir() + "/pollwall");
     QString msg;
     if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
-        std::cerr << "Could not write the pollwall file." << std::endl;
+        octInfo("Could not write the pollwall file.\n");
         return;
     }
 
@@ -351,7 +351,7 @@ void Vote::addToPollWall(Poll &poll) {
 bool Vote::loadPollWall() {
     QFile fin(manager()->dataDir() + "/pollwall");
     if (!fin.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read pollwall file" << std::endl;
+        octInfo("Could not read pollwall file\n");
         return false;
     }
 

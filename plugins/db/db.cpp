@@ -110,19 +110,19 @@ Db::~Db() {
 bool Db::loadDatas() {
     QFile fin(manager()->dataDir() + "/database");
     if (!fin.open(QIODevice::ReadOnly)) {
-        std::cerr << "Could not read config file" << std::endl;
+        octInfo("Could not read config file\n");
         return false;
     }
 
     int errorLine, errorCol;
     QString errorMsg;
     if (!m_document.setContent(&fin, &errorMsg, &errorLine, &errorCol)) {
-        std::cerr << QString("This is not a valid config file.\nXML error in line %1, column %2:\n%3").arg(errorLine).arg(errorCol).arg(errorMsg).ascii() << std::endl;
+        octInfo(QString("This is not a valid config file.\nXML error in line %1, column %2:\n%3\n").arg(errorLine).arg(errorCol).arg(errorMsg));
         fin.close();
         return false;
     }
     if (m_document.documentElement().nodeName() !="db") {
-        std::cerr << "This is not a valid config file." << std::endl;
+        octInfo("This is not a valid config file.\n");
         fin.close();
         return false;
     }
@@ -134,7 +134,7 @@ bool Db::loadDatas() {
 bool Db::storeDatas() {
     QFile fout(manager()->dataDir() + "/database");
     if( !fout.open(QIODevice::WriteOnly) ) {
-        std::cerr << "Could not write the config file." << std::endl;
+        octInfo("Could not write the config file.\n");
         return false;
     }
 
@@ -221,7 +221,6 @@ void Db::deleteUser(const QString& login) {
 }
 
 bool Db::authUser(const QString& login, const QString& pass) const {
-    //std::cerr << "Compare crypt(" << pass.ascii() << ")=" << QString(crypt(pass.ascii(),SEED)) << " with " + getValue(login, "password") << std::endl;
     return(getValue(login, "password") == QString(crypt(pass.ascii(),SEED)));
 }
 

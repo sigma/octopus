@@ -17,3 +17,7 @@ MOC_DIR = .moc
 INCLUDEPATH = ../../interfaces
 LIBS += ../../interfaces/libinterfaces.a
 QT -= gui
+
+release {
+	DEFINES += OCT_DEBUG
+}

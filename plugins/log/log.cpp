@@ -26,10 +26,10 @@ Log::Log(PluginManagerInterface* parent) : LogPlugin(parent) {
     // Create log directory if doesn't exist
     QDir dir(logDir());
     if (!dir.exists()) {
-	if (!dir.mkdir(dir.absolutePath())) {
-	    std::cerr << "Could not create the log directory." << std::endl;
-	    return;
-	}
+        if (!dir.mkdir(dir.absolutePath())) {
+            octInfo("Could not create the log directory.\n");
+            return;
+        }
     }
 }
 
@@ -45,8 +45,8 @@ bool Log::write(const QString & section, const QString & msg) {
     QFile fout(logDir() + "/" + section);
 
     if (!fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
-        std::cerr << QString("Could not write the %1 file.").arg(section).ascii() << std::endl;
-	return false;
+        octInfo(QString("Could not write the %1 file.\n").arg(section));
+        return false;
     }
 
     QTextStream streamOut(&fout);
