@@ -1,8 +1,0 @@
-\name
-define - define a variable
-\synopsis
-define {string|int|bool} [user.]{public|private}.{transient|resident}.<property>\description
-Allows you to define a variable.
-\example
-> define string public.resident.icq
-You define icq as public and resident

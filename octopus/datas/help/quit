@@ -1,9 +1,0 @@
-\name
-quit - leave the server
-\synopsis
-quit [<reason>]
-\description
-Allows you to leave the server.
-\example
-> quit I'm really silly to leave this wonderful chat server
-

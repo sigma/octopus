@@ -1,8 +1,0 @@
-\name
-chpasswd - Change your own password
-\synopsis
-chpasswd <new password>
-\description
-Allows you to change your password
-\example
-> chpassword password

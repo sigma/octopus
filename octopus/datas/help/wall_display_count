@@ -1,8 +1,0 @@
-\name
-wall_display_count
-\description
-This user private variable contains the maximum count of displayed wall lines when "wall" is invoked.
-If you set its value to 0, the displayed wall lines count will be the default value.
-It doesn't influence the true wall lines count.
-\see also
-msg_display_count, pollwall_display_count

@@ -1,8 +1,0 @@
-\name
-help - display documentation
-\synopsis
-help [<topic>]
-\description
-Display documentation for requested command
-\example
-This page :-)
