@@ -1,0 +1,74 @@
+#!/usr/bin/perl -w
+
+use strict;
+
+# Uncast one file
+sub uncast_file {
+    my ( $victim ) = @_;
+    my ( $line, $temp_name );
+    
+    # Read the victim, operating on each line. Write the results to the
+    # temporary file, then rename.
+
+    $temp_name = "$victim.uncast-temp-$$";
+    print "Uncasting $victim\n";
+
+    open( VICTIM, "<$victim" ) || return 0;
+    open( TEMP, ">$temp_name" ) || return 0;
+    while( defined( $line = <VICTIM> ) ) {
+	$line =~ s/::qt_cast<([^>]+)>\(/QT_CAST\($1,/g;
+	print TEMP $line || return 0;
+    }
+    close( VICTIM ) || return 0;
+    close( TEMP ) || return 0;
+    rename( $victim, "$victim.uncast-backup-$$" ) || return 0;
+    rename( $temp_name, $victim ) || return 0;
+    unlink( "$victim.uncast-backup-$$" ) || return 0;
+
+    return 1;
+}
+
+# Recursively uncast a directory tree of files
+sub uncast_dir {
+    my ( $dir ) = @_;
+    local *DIR;
+    my ( $entry );
+
+    if ( !opendir( DIR, "$dir" ) ) {
+	print STDERR "Error opening $dir: $!\n";
+	return;
+    }
+    while ( defined ( $entry = readdir( DIR ) ) ) {
+	# Skip . and ..
+	if ( ( $entry eq ".." ) || ( $entry eq "." ) ) {
+	    next;
+	}
+	if ( -d "$dir/$entry" ) {
+	    uncast_dir( "$dir/$entry" );
+	} 
+	if ( ( -f "$dir/$entry" ) &&
+		( ( "$entry" =~ m/\.cpp$/ ) || ( "$entry" =~ m/\.h$/ ) ) ) {
+	    uncast_file( "$dir/$entry" ) || print STDERR "Error uncasting $dir/$entry: $!\n";
+	}
+    }
+    closedir( DIR );
+    return;
+}
+
+my ( $dir );
+
+if ( $#ARGV == 0 ) {
+    $dir = $ARGV[0];
+} else {
+    $dir = $ENV{"QTDIR"};
+}
+
+if ( ( defined $dir ) && ( $dir ne "" ) ) {
+    uncast_dir( $dir );
+} else {
+    # Usage
+    print STDERR "qt32castcompat - Convert ::qt_cast<X>(Y) into QT_CAST(X,Y) macro\n";
+    print STDERR "Usage: qt32castcompat [DIRECTORY]\n";
+    print STDERR "where DIRECTORY is the name of the directory containing the Qt sources\n";
+    print STDERR "DIRECTORY defaults to QTDIR if set\n";
+}
