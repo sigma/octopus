@@ -1,9 +1,0 @@
-\name
-vote - vote 
-\synopsis
-vote <id> <choice>
-\description
-Allows you to vote in a poll for a choice.
-\example
-1 : Choucroute sux, isn't it? [sure/no/dunno] (3 votes)
-> vote 1 sure

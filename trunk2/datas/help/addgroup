@@ -1,8 +1,0 @@
-\name
-addgroup - add a user in a group
-\synopsis
-addgroup <user> <groups>
-\description 
-Allows you to add a user in a group
-\example
-> addgroup sid Wall

@@ -1,9 +1,0 @@
-\name
-shout - send a sentence to all users
-\synopsis
-shout <message>
-\description
-Allows you to send a sentence to all connected users.
-\example
-> shout Hey! Teachers! Leave them kids alone! 
-You shout: Hey! Teachers! Leave them kids alone!

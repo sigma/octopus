@@ -1,7 +1,0 @@
-\name
-commands - display all commands
-\synopsis
-commands
-\description
-Allows you to display all server commands and a short description for each of them.
-

@@ -1,9 +1,0 @@
-\name
-leave - leave the current channel
-\synopsis
-leave
-\description
-Allows you to leave the current channel and then to return to the hall.
-\example
-> leave
-You join channel Hall

@@ -1,8 +1,0 @@
-\name
-lsmod - display all active plugins
-\synopsis
-lsmod
-\description
-Allows you to display all active plugins.
-\see also
-modprobe, rmmod
