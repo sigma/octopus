@@ -15,6 +15,9 @@
 
 #include "log.h"
 
+#include <QDateTime>
+#include <QTextStream>
+
 PLUGIN_FACTORY(Log);
 
 #define MAX_LINE_NUMBER 100
@@ -23,7 +26,7 @@ Log::Log(PluginManagerInterface* parent) : LogPlugin(parent) {
     // Create log directory if doesn't exist
     QDir dir(logDir());
     if (!dir.exists()) {
-	if (!dir.mkdir(dir.absPath())) {
+	if (!dir.mkdir(dir.absolutePath())) {
 	    std::cerr << "Could not create the log directory." << std::endl;
 	    return;
 	}
@@ -41,8 +44,8 @@ bool Log::write(const QString & section, const QString & msg) {
     // Write it
     QFile fout(logDir() + "/" + section);
 
-    if (!fout.open(IO_WriteOnly | IO_Append)) {
-	std::cerr << "Could not write the " + section + " file." << std::endl;
+    if (!fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
+        std::cerr << QString("Could not write the %1 file.").arg(section).ascii() << std::endl;
 	return false;
     }
 

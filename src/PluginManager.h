@@ -55,7 +55,7 @@ class PluginManager : public PluginManagerInterface {
         QString description;
         QString pattern;
         QRegExp regexp;
-        QValueList<int> regexp_positions;
+        QList<int> regexp_positions;
         QString group;
     }
     ComRef;
@@ -111,7 +111,7 @@ private:
 
     QString connection_name, default_name, database_name, prepost_name, log_name;
     QStringList other_plugins;
-    QValueList<int> ports;
+    QList<int> ports;
 
     CommandMap available_commands;
 

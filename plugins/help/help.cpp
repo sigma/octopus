@@ -15,6 +15,7 @@
 
 #include <qregexp.h>
 #include <qfile.h>
+#include <QTextStream>
 
 #include "help.h"
 
@@ -53,7 +54,7 @@ void Help::helpCmd(const QString& from, const QStringList& list) {
 
 void Help::incomingUser(const QString& login) {
     QFile fin(manager()->dataDir() + "/helpmsg");
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read helpmsg file" << std::endl;
         return;
     } else {
@@ -75,17 +76,17 @@ void Help::exportCommands() {
 
 bool Help::loadHelpFile(const QString &helpFilename, QStringList *list) {
     QFile fin(manager()->dataDir() + "/help/" + helpFilename);
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
 	return false;
     } else {
 	QRegExp re("^\\\\(.+)$");
 	QTextStream stream(&fin);
 	QString line;
 	while((line = stream.readLine()) != QString::null) {
-	    line = line.stripWhiteSpace();
+	    line = line.simplified();
 	    // Is a mark line?
 	    if (re.exactMatch(line)) {
-		(*list).push_back(re.cap(1).upper());
+		(*list).push_back(re.cap(1).toUpper());
 	    } else {
 		(*list).push_back("       " + line);
 	    }

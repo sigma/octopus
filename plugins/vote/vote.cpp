@@ -14,6 +14,8 @@
 #include <iostream>
 #include <qregexp.h>
 #include <qstring.h>
+#include <QTextStream>
+#include <QDateTime>
 
 #include "vote.h"
 
@@ -29,7 +31,7 @@ Vote::~Vote() {}
 
 bool Vote::loadPolls() {
     QFile fin(manager()->dataDir() + "/polls");
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read polls file" << std::endl;
         return false;
     }
@@ -47,19 +49,19 @@ bool Vote::loadPolls() {
 	    poll.author = re.cap(3);
 
 	    // Choices
-	    QStringList choices = QStringList::split('\\', re.cap(4));
+	    QStringList choices = re.cap(4).split('\\',QString::SkipEmptyParts);
 	    QRegExp choiceRe("choice\\:(.+)\\:([0-9]+)");
-	    for (uint i = 0; i < choices.count(); ++i) {
+	    for (int i = 0; i < choices.count(); ++i) {
 		choiceRe.exactMatch(choices[i]);
-		poll.choices << choiceRe.cap(1).stripWhiteSpace();
+		poll.choices << choiceRe.cap(1).simplified();
 		poll.results.push_back(choiceRe.cap(2).toUInt());
 	    }
 	    // Already polled users
-	    QStringList users = QStringList::split('\\', re.cap(6));
+	    QStringList users = re.cap(6).split('\\',QString::SkipEmptyParts);
 	    QRegExp userRe("user\\:(.+)");
-	    for (uint i = 0; i < users.count(); ++i) {
+	    for (int i = 0; i < users.count(); ++i) {
 		userRe.exactMatch(users[i]);
-		poll.polledUsers << userRe.cap(1).stripWhiteSpace();
+		poll.polledUsers << userRe.cap(1).simplified();
 	    }
 	    // Store the poll
 	    polls.push_back(poll);
@@ -72,7 +74,7 @@ bool Vote::loadPolls() {
 
 bool Vote::savePolls() {
     QFile fout(manager()->dataDir() + "/polls");
-    if (!fout.open(IO_WriteOnly)) {
+    if (!fout.open(QIODevice::WriteOnly)) {
         std::cerr << "Could not write polls file" << std::endl;
         return false;
     }
@@ -86,7 +88,7 @@ bool Vote::savePolls() {
 	line += "\\author:" + (*it).author;
 
 	// choices
-	for (uint i = 0; i != (*it).choices.count(); ++i)
+	for (int i = 0; i != (*it).choices.count(); ++i)
 	    line += "\\choice:" + (*it).choices[i] + ":" + QString::number((*it).results[i]);
 
 	// polled users
@@ -109,12 +111,12 @@ void Vote::exportCommands() {
 }
 
 void Vote::addpollCmd(const QString &from, const QStringList& list) {
-	QStringList choiceList = QStringList::split(",",list[0]);
+	QStringList choiceList = list[0].split(",",QString::SkipEmptyParts);
 
 	Poll poll;
 	uint i = 0;
 	poll.author = from;
-	poll.question = list[1].stripWhiteSpace();
+	poll.question = list[1].simplified();
 	for (QStringList::Iterator it = choiceList.begin(); it != choiceList.end(); ++it, ++i) {
 	    poll.choices << *it;
 	    poll.results.push_back(0);
@@ -145,7 +147,7 @@ void Vote::closepollCmd(const QString &from, const QStringList &list) {
         if((from == (*p).author) || from == "Root") {
             QString results("Poll " + QString::number(id) + " (" + (*p).question + ")" + " is now closed!\nResults :");
             int i = 0;
-            for (QValueList<uint>::Iterator it = (*p).results.begin(); it != (*p).results.end(); ++it, ++i)
+            for (QList<uint>::Iterator it = (*p).results.begin(); it != (*p).results.end(); ++it, ++i)
                 results += "\n" + (*p).choices[i] + " : " + QString::number(*it);
 
             manager()->connectionPlugin()->serverBroadcast(results);
@@ -153,7 +155,7 @@ void Vote::closepollCmd(const QString &from, const QStringList &list) {
             // Add the poll in the pollwall
             addToPollWall(*p);
             // Remove the poll and save all
-            polls.remove(p);
+            polls.erase(p);
             savePolls();
         } else {
             QString error("closepoll: permission denied");
@@ -172,7 +174,7 @@ void Vote::lspollCmd(const QString &from, const QStringList&) {
 	if (poll_map.count()) {
 	    txt = "Polls :";
 	    for (QMap<int,QString>::Iterator it = poll_map.begin(); it != poll_map.end(); ++it)
-            txt += "\n" + it.data();
+            txt += "\n" + it.value();
 	    manager()->connectionPlugin()->serverSend(from, txt);
 	    manager()->connectionPlugin()->serverSend(from, "End of polls");
 	}
@@ -184,7 +186,7 @@ void Vote::lspollCmd(const QString &from, const QStringList&) {
 
 void Vote::voteCmd(const QString &from, const QStringList& list) {
 	uint id = list[0].toUInt();
-	QString choice = list[1].stripWhiteSpace();
+	QString choice = list[1].simplified();
 
 	PollList::Iterator p;
 	// Search for the poll ID
@@ -202,14 +204,14 @@ void Vote::voteCmd(const QString &from, const QStringList& list) {
 	}
 
 	// Has user already voted?
-	if ((*p).polledUsers.find(from) == (*p).polledUsers.end()) {
+	if ((*p).polledUsers.indexOf(from) == -1) {
 	    // Search for the vote choice
 	    int choice_number;
-	    if ((*p).choices.find(choice) == (*p).choices.end()) {
+	    if ((*p).choices.indexOf(choice) == -1) {
 		manager()->connectionPlugin()->serverSend(from, "No such choice : " + choice);
 		return;
 	    } else
-		choice_number = (*p).choices.findIndex(choice);
+		choice_number = (*p).choices.indexOf(choice);
 
 	    // Add the user
 	    (*p).polledUsers.push_back(from);
@@ -226,7 +228,7 @@ void Vote::voteCmd(const QString &from, const QStringList& list) {
 }
 
 void Vote::pollwallCmd(const QString &from, const QStringList&) {
-	uint count = manager()->databasePlugin()->getValue(from, "pollwall_display_count").toInt();
+	int count = manager()->databasePlugin()->getValue(from, "pollwall_display_count").toInt();
 	if (!count)
 	    count = POLL_WALL_LINES;
 	if (current_poll_wall.count() > count)
@@ -275,7 +277,7 @@ uint Vote::getFreePollId() {
 void Vote::incomingUser(const QString& login) {
   QStringList missing_votes;
   for (PollList::Iterator it = polls.begin(); it != polls.end(); ++it) {
-      if ((*it).polledUsers.find(login) == (*it).polledUsers.end())
+      if ((*it).polledUsers.indexOf(login) == -1)
 	  missing_votes << getPollDisplay(*it);
   }
   if (missing_votes.count())
@@ -299,14 +301,14 @@ QString Vote::getPollWinners(const Poll &poll) {
     QString maxChoice;
 
     // Get the max result
-    for (uint i = 0; i < poll.choices.count(); ++i) {
+    for (int i = 0; i < poll.choices.count(); ++i) {
 	if (poll.results[i] > max)
 	    max = poll.results[i];
     }
 
     // Concat winners
     if (max) {
-	for (uint i = 0; i < poll.choices.count(); ++i) {
+	for (int i = 0; i < poll.choices.count(); ++i) {
 	    if (poll.results[i] == max) {
 		if (maxChoice != "")
 		    maxChoice += " | ";
@@ -322,7 +324,7 @@ QString Vote::getPollWinners(const Poll &poll) {
 void Vote::addToPollWall(Poll &poll) {
     QFile fout(manager()->dataDir() + "/pollwall");
     QString msg;
-    if( !fout.open(IO_WriteOnly | IO_Append)) {
+    if( !fout.open(QIODevice::WriteOnly | QIODevice::Append)) {
         std::cerr << "Could not write the pollwall file." << std::endl;
         return;
     }
@@ -348,7 +350,7 @@ void Vote::addToPollWall(Poll &poll) {
 
 bool Vote::loadPollWall() {
     QFile fin(manager()->dataDir() + "/pollwall");
-    if (!fin.open(IO_ReadOnly)) {
+    if (!fin.open(QIODevice::ReadOnly)) {
         std::cerr << "Could not read pollwall file" << std::endl;
         return false;
     }
@@ -374,7 +376,7 @@ bool Vote::loadPollWall() {
 uint Poll::voteCount() const {
     uint result = 0;
 
-    for (QValueList<uint>::ConstIterator it = results.begin(); it != results.end(); ++it)
+    for (QList<uint>::ConstIterator it = results.begin(); it != results.end(); ++it)
 	result += (*it);
 
     return result;

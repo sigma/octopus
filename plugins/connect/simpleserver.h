@@ -16,7 +16,7 @@
  ***************************************************************************/
 
 /****************************************************************************
-** 
+**
 **
 ** Copyright (C) 1992-2000 Trolltech AS.  All rights reserved.
 **
@@ -28,8 +28,7 @@
 #ifndef _SIMPLESERVER_H_
 #define _SIMPLESERVER_H_
 
-#include <qserversocket.h>
-#include <qvaluelist.h>
+#include <Q3ServerSocket>
 #include <iostream>
 /*
   The SimpleServer class handles new connections to the server. For every
@@ -39,7 +38,7 @@
 class Connect;
 class ClientSocket;
 
-class SimpleServer : public QServerSocket {
+class SimpleServer : public Q3ServerSocket {
     Q_OBJECT
 public:
     SimpleServer( int port, QObject* parent=0 );
@@ -55,11 +54,11 @@ signals:
 private slots:
     void closedSocket() {
 //    std::cout << "Removed a socket" << std::endl;
-        sockets.remove((ClientSocket*) sender());
+        sockets.removeAll((ClientSocket*) sender());
     }
 
 private:
-    QValueList<ClientSocket*> sockets;
+    QList<ClientSocket*> sockets;
 };
 
 

@@ -12,7 +12,7 @@
  ***************************************************************************/
 
 #include "domutil.h"
-
+#include <iostream>
 void DomUtil::makeEmpty( QDomElement& e )
 {
     while( !e.firstChild().isNull() )
@@ -21,7 +21,7 @@ void DomUtil::makeEmpty( QDomElement& e )
 
 QDomElement DomUtil::elementByPath(const QDomDocument &doc, const QString &path)
 {
-    QStringList l = QStringList::split('/', path);
+    QStringList l = path.split('/',QString::SkipEmptyParts);
 
     QDomElement el = doc.documentElement();
     QStringList::ConstIterator it;
@@ -124,7 +124,7 @@ QDomElement DomUtil::namedChildElement( QDomElement& el, const QString& name )
 
 QDomElement DomUtil::createElementByPath(QDomDocument &doc, const QString &path)
 {
-    QStringList l = QStringList::split('/', path);
+    QStringList l = path.split('/',QString::SkipEmptyParts);
 
     QDomElement el = doc.documentElement();
     QStringList::ConstIterator it;
@@ -183,7 +183,7 @@ void DomUtil::writePairListEntry(QDomDocument &doc, const QString &path, const Q
         //subEl.setAttribute(firstAttr, (*it).first);
 	subEl.setAttribute(firstAttr, it.key());
         //subEl.setAttribute(secondAttr, (*it).second);
-	subEl.setAttribute(secondAttr, it.data());
+	subEl.setAttribute(secondAttr, it.value());
         el.appendChild(subEl);
     }
 }

@@ -28,7 +28,7 @@
 #include <signal.h>
 #include <unistd.h>
 
-#include <qapplication.h>
+#include <QCoreApplication>
 
 #include "PluginManager.h"
 #include "ConnectionPlugin.h"
@@ -49,7 +49,7 @@ static const int Signal[] = {
 
 void exitServer() {
     signal_caught++;
-    pm->shutdownCmd("Root","shutdown");
+    pm->shutdownCmd("Root",QStringList("shutdown"));
 }
 
 static void SigHandler(int Sig) {
@@ -85,7 +85,7 @@ static void initSignal(void) {
 
 int main(int argc, char *argv[]) {
 
-    QApplication app(argc, argv,QApplication::Tty);
+    QCoreApplication app(argc, argv);
 
     pm = new PluginManager;
     bool daemonize = false;

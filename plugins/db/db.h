@@ -4,7 +4,6 @@
 
 #include <qdom.h>
 #include <qstringlist.h>
-#include <qvaluelist.h>
 
 #include "plugins.h"
 
@@ -96,7 +95,7 @@ private:
     QString formatInfos(const QString &infos);
     QStringList getVariableList(const QString &from);
 
-    QValueList<int> m_modes;
+    QList<int> m_modes;
     QStringList guests;
     VarMap internal_vars;
 };
