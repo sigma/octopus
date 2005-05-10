@@ -23,7 +23,7 @@ LIBS += ../../interfaces/libinterfaces.a
 TARGETDEPS += ../../interfaces/libinterfaces.a
 
 QT -= gui
-QT += network compat
+QT += network qt3support
 
 debug {
 	DEFINES += OCT_DEBUG

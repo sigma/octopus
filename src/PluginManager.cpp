@@ -72,7 +72,7 @@ Plugin* PluginManager::loadPluginFile(QString file_name, QString *error) {
 
     Data d;
 
-    void* plug = dlopen(file_name, RTLD_LAZY);
+    void* plug = dlopen(file_name.toAscii(), RTLD_LAZY);
     if (!plug) {
         *error = QString("Cannot load library %1 : %2").arg(file_name).arg(dlerror());
         return 0;

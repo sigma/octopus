@@ -221,7 +221,7 @@ void Db::deleteUser(const QString& login) {
 }
 
 bool Db::authUser(const QString& login, const QString& pass) const {
-    return(getValue(login, "password") == QString(crypt(pass.ascii(),SEED)));
+    return(getValue(login, "password") == QString(crypt(pass.toAscii(),SEED)));
 }
 
 bool Db::existGroup(const QString& group) const {
@@ -776,7 +776,7 @@ bool Db::setValue(const QString& login, const QString& label, const QString& val
         QString v(value);
         if(type == BOOL)
             v = (re.cap(1) == "")?"0":"1";
-        DomUtil::writeEntry(m_document,path,(mode & ENCRYPTED)?QString(crypt(v.ascii(),SEED)):v);
+        DomUtil::writeEntry(m_document,path,(mode & ENCRYPTED)?QString(crypt(v.toAscii(),SEED)):v);
         if((mode & INTERNAL) && notify)
             ((*(internal_vars.find(label))).plug)->modifiedInternalVariable(login,label,v);
         return true;

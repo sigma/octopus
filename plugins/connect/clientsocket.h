@@ -31,6 +31,8 @@
 #include <Q3Socket>
 #include <qdatetime.h>
 
+#include "debug.h"
+
 /*
   The ClientSocket class provides a socket that is connected with a client.
   For every client that connects to the server, the server creates a new

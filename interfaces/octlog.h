@@ -30,7 +30,7 @@ namespace octopus {
 
     public:
         Octstream &operator << (const QString& msg) {
-            return (Octstream&)(*((std::ostringstream*)this) << std::string(msg.ascii()));
+            return (Octstream&)(*((std::ostringstream*)this) << std::string(msg.toAscii().constData()));
         }
 
         Octstream &operator << (const char* msg) {
