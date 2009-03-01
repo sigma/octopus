@@ -27,6 +27,7 @@
 #include <getopt.h>
 #include <signal.h>
 #include <unistd.h>
+#include <stdlib.h>
 
 #include <QCoreApplication>
 
@@ -173,8 +174,8 @@ int main(int argc, char *argv[]) {
 
     initSignal();
 
-    if(daemonize) {
-        daemon(1,1);
+    if(daemonize && daemon(1,1)) {
+        octInfo("Daemonizing server!\n");
     }
     return app.exec();
 }

@@ -19,6 +19,7 @@
 #include <iostream>
 #include <dlfcn.h>
 #include <typeinfo>
+#include <unistd.h>
 
 #include <QCoreApplication>
 #include <QTimer>
@@ -46,7 +47,7 @@ PluginManager::PluginManager(PluginManagerInterface*, const QString& d) : Plugin
 
 PluginManager::~PluginManager() {
     destroyPlugins();
-    exit(0);
+    _exit(0);
 }
 
 void PluginManager::destroyPlugins() {
@@ -107,7 +108,7 @@ void PluginManager::loadConnectionPluginFile(QString file_name) {
     connect = static_cast<ConnectionPlugin*>(loadPluginFile(file_name,&error));
     if(!connect) {
         octInfo(QString("Incorrect Connection Plugin : %1\n").arg(error));
-        exit(1);
+        _exit(1);
     }
 }
 
@@ -116,7 +117,7 @@ void PluginManager::loadDefaultPluginFile(QString file_name) {
     def = static_cast<DefaultPlugin*>(loadPluginFile(file_name, &error));
     if(!def) {
         octInfo(QString("Incorrect Default Plugin : %1\n").arg(error));
-        exit(1);
+        _exit(1);
     }
 }
 
@@ -125,7 +126,7 @@ void PluginManager::loadDatabasePluginFile(QString file_name) {
     data = static_cast<DatabasePlugin*>(loadPluginFile(file_name, &error));
     if(!data) {
         octInfo(QString("Incorrect Database Plugin : %1\n").arg(error));
-        exit(1);
+        _exit(1);
     }
 }
 
@@ -134,7 +135,7 @@ void PluginManager::loadPrePostPluginFile(QString file_name) {
     prepost = static_cast<PrePostPlugin*>(loadPluginFile(file_name, &error));
     if(!prepost) {
         octInfo(QString("Incorrect PrePost Plugin : %1\n").arg(error));
-        exit(1);
+        _exit(1);
     }
 }
 
@@ -143,7 +144,7 @@ void PluginManager::loadLogPluginFile(QString file_name) {
     log = static_cast<LogPlugin*>(loadPluginFile(file_name, &error));
     if (!log) {
         octInfo(QString("Incorrect Log Plugin : %1\n").arg(error));
-        exit(1);
+        _exit(1);
     }
 }
 
